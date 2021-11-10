@@ -180,6 +180,7 @@ function App() {
                 logoutOfWeb3Modal={logoutOfWeb3Modal}
                 blockExplorer={blockExplorer}
               />
+              test
               <Button
                 style={{ marginBottom: "4rem" }}
                 type="primary"
@@ -190,7 +191,7 @@ function App() {
                   });
                 }}
               >
-                💰 Grab funds from the faucet maybe ⛽️
+                💰 Grab funds from the faucet ⛽️
               </Button>
             </div>
           </Route>
