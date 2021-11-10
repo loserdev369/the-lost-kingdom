@@ -180,7 +180,6 @@ function App() {
                 logoutOfWeb3Modal={logoutOfWeb3Modal}
                 blockExplorer={blockExplorer}
               />
-              test
               <Button
                 style={{ marginBottom: "4rem" }}
                 type="primary"
