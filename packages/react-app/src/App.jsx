@@ -190,7 +190,7 @@ function App() {
                   });
                 }}
               >
-                💰 Grab funds from the faucet ⛽️
+                💰 Grab funds from the faucet maybe ⛽️
               </Button>
             </div>
           </Route>
