@@ -154,17 +154,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/">
-            <TheLostKingdom />
-            <Account
-              address={address}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              mainnetProvider={mainnetProvider}
-              web3Modal={web3Modal}
-              loadWeb3Modal={loadWeb3Modal}
-              logoutOfWeb3Modal={logoutOfWeb3Modal}
-              blockExplorer={blockExplorer}
-            />
+            <TheLostKingdom {...myProps} />
           </Route>
           <Route path="/faucet">
             <div style={{ padding: 32 }}>
