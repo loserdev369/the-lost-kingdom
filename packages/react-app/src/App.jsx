@@ -10,7 +10,7 @@ import { Contract } from "./components";
 import { Transactor } from "./helpers";
 import { NETWORKS } from "./constants";
 import Account from "./components/Account";
-import Losers from "./pages/Losers";
+import TheLostKingdom from "./pages/TheLostKingdom"
 
 import {
   useContractLoader,
@@ -154,18 +154,7 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/">
-            <h1>10k Losers</h1>
-            <Losers />
-            <Account
-              address={address}
-              localProvider={localProvider}
-              userSigner={userSigner}
-              mainnetProvider={mainnetProvider}
-              web3Modal={web3Modal}
-              loadWeb3Modal={loadWeb3Modal}
-              logoutOfWeb3Modal={logoutOfWeb3Modal}
-              blockExplorer={blockExplorer}
-            />
+            <TheLostKingdom {...myProps} />
           </Route>
           <Route path="/faucet">
             <div style={{ padding: 32 }}>
