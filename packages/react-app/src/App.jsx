@@ -10,7 +10,7 @@ import { Contract } from "./components";
 import { Transactor } from "./helpers";
 import { NETWORKS } from "./constants";
 import Account from "./components/Account";
-import TheLostKingdom from "./components/TheLostKingdom"
+import TheLostKingdom from "./pages/TheLostKingdom"
 
 import {
   useContractLoader,
@@ -154,7 +154,6 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/">
-            <h1>The Lost Kingdom</h1>
             <TheLostKingdom />
             <Account
               address={address}
