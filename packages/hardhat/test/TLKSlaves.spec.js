@@ -12,7 +12,6 @@ use(solidity);
 let signers; // this is an array of accounts
 let attackers;
 let purchasers = [];
-let whitelisted = [];
 let admins;
 let TLKSlaves;
 let TLKSlavesFactory;
@@ -38,11 +37,6 @@ describe("TLKSlaves", function () {
     // populate the purchasers array
     for (let i = 0; i <= 100; i++) {
       purchasers.push(signers[100 + i]);
-    }
-
-    // populate the whitelisted array
-    for (let i = 0; i <= 100; i++) {
-      whitelisted.push(signers[200 + i]);
     }
 
     // create the contract
@@ -175,25 +169,11 @@ describe("TLKSlaves", function () {
       );
     });
 
-    it("Attacker should not be able to setWhitelist addresses", async function () {
+    it("Attacker should not be able to setSale", async function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setWhitelist([
-        attackers[0].address,
-        attackers[1].address,
-      ]);
-      // Assert
-      await expect(tryToEdit).to.be.revertedWith(
-        "Nice try! You need to be an admin"
-      );
-    });
-
-    it("Attacker should not be able to setSaleTimes", async function () {
-      // Arrange
-      const attacker = attackers[0];
-      // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setSaleTimes([123456, 123456]);
+      const tryToEdit = TLKSlaves.connect(attacker).setSale(true);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -231,43 +211,6 @@ describe("TLKSlaves", function () {
     });
   });
 
-  describe("WhiteList wallets", function () {
-    it("should allow admin to set a Whitelisted address", async function () {
-      // Arrange
-      const admin = admins[0];
-      const whitelistedWallet = signers[200].address;
-      // Act
-      await TLKSlaves.connect(admin).setWhitelist([whitelistedWallet]);
-      const account = await TLKSlaves.getTLKSlaveHolder(whitelistedWallet);
-      let whitelist = account[2];
-      // Assert
-      // eslint-disable-next-line no-unused-expressions
-      expect(whitelist).to.be.true;
-    });
-
-    it("should allow an admin to add 100 addresses to the whitelist", async function () {
-      // Arrange
-      const admin = admins[0];
-      const whitelistedWallet = signers[299].address;
-      const createWhitelist = () => {
-        const array = [];
-        // eslint-disable-next-line for-direction
-        for (let i = 0; i <= 100; i++) {
-          array.push(whitelisted[i].address);
-        }
-        return array;
-      };
-      let whitelistArray = createWhitelist();
-      // Act
-      await TLKSlaves.connect(admin).setWhitelist(whitelistArray);
-      const account = await TLKSlaves.getTLKSlaveHolder(whitelistedWallet);
-      let whitelist = account[2];
-      // Assert
-      // eslint-disable-next-line no-unused-expressions
-      expect(whitelist).to.be.true;
-    });
-  });
-
   describe("Contract Configuration", function () {
     it("Owner should be able to set another Admin", async function () {
       // Arrange
@@ -276,7 +219,7 @@ describe("TLKSlaves", function () {
       await TLKSlaves.connect(wallet).setAdmin(signers[6].address, true, 10);
       // Assert
       const account = await TLKSlaves.getTLKSlaveHolder(signers[6].address);
-      let adminFlag = account[3];
+      let adminFlag = account[2];
       // eslint-disable-next-line no-unused-expressions
       expect(adminFlag).to.be.true;
     });
@@ -363,22 +306,15 @@ describe("TLKSlaves", function () {
   });
 
   describe("Get Contract Information", function () {
-    it("Public should be able to getSaleTimes", async function () {
+    it("Public should be able to getSale", async function () {
       // Arrange
       const wallet = signers[88];
       let passedTest = false;
       // Act
-      let saleTimes = await TLKSlaves.connect(wallet).getSaleTimes();
-      // console.log("SaleTimes: ", saleTimes);
+      let saleValue = await TLKSlaves.connect(wallet).getSale();
+      // console.log("SaleValue: ", saleValue);
       // Assert
-      let preSaleTime = saleTimes[0].toNumber();
-      let saleTime = saleTimes[1].toNumber();
-      // console.log("PreSale Time = ", preSaleTime);
-      // console.log("Sale Time = ", saleTime);
-      if (preSaleTime === 1635224400 && saleTime === 1635310800) {
-        passedTest = true;
-      }
-      await expect(passedTest).to.be.true;
+      await expect(saleValue).to.be.false;
     });
   });
 
@@ -446,7 +382,6 @@ describe("TLKSlaves", function () {
       const blockNum = await ethers.provider.getBlockNumber();
       const block = await ethers.provider.getBlock(blockNum);
       const timestamp = block.timestamp;
-      await TLKSlaves.connect(admin).setSaleTimes([timestamp, timestamp + 4000]);
     });
 
     it("Should not be able to mint before sale is active", async function () {
@@ -462,48 +397,12 @@ describe("TLKSlaves", function () {
       await expect(res).to.be.revertedWith("Sale must be active'");
     });
 
-    it("Should not be able to mint before pre-sale starts", async function () {
-      // Arrange
-      const admin = admins[0];
-      let blockNum = await ethers.provider.getBlockNumber();
-      let block = await ethers.provider.getBlock(blockNum);
-      let timestamp = block.timestamp;
-      await TLKSlaves.connect(admin).setSaleTimes([
-        timestamp + 5000, // Pre-sale
-        timestamp + 10000, // Public Sale
-      ]);
-      const buyAmount = 5;
-      const purchaser = purchasers[0];
-      const value = ethers.utils.parseUnits((0.069 * buyAmount).toString());
-      // Act
-      const res = TLKSlaves.connect(purchaser).mintSlave(buyAmount, { value });
-      // Assert
-      await expect(res).to.be.revertedWith("Pre-sale has not started");
-    });
-
-    it("Should not be able to mint unless on a whitelist", async function () {
-      // Arrange
-      const buyAmount = 5;
-      const purchaser = purchasers[0];
-      const value = ethers.utils.parseUnits((0.069 * buyAmount).toString());
-      // Act
-      const res = TLKSlaves.connect(purchaser).mintSlave(buyAmount, { value });
-      // Assert
-      await expect(res).to.be.revertedWith(
-        "Sorry you need to be on the whitelist"
-      );
-    });
-
     it("Contract address balance should increase correctly on a mint event", async function () {
       // Arrange
       const admin = admins[0];
       let blockNum = await ethers.provider.getBlockNumber();
       let block = await ethers.provider.getBlock(blockNum);
       let timestamp = block.timestamp;
-      await TLKSlaves.connect(admin).setSaleTimes([
-        timestamp - 5000, // Pre-sale
-        timestamp, // Public Sale
-      ]);
       // let provider = ethers.getDefaultProvider();
       let preBalance = await ethers.provider.getBalance(TLKSlaves.address);
       preBalance = Number(ethers.utils.formatEther(preBalance)).toFixed(3);
@@ -532,9 +431,9 @@ describe("TLKSlaves", function () {
       // Loop through and buy the MAX NFTs from each purchaser wallet
       for (let i = 0; i < 100; i++) {
         // eslint-disable-next-line no-await-in-loop
-        // console.log("Minting 5 NFTs for Address: ", whitelisted[i].address);
+        // console.log("Minting 5 NFTs for Address: ", purchasers[i].address);
         // eslint-disable-next-line no-await-in-loop
-        await TLKSlaves.connect(whitelisted[i]).mintSlave(5, { value });
+        await TLKSlaves.connect(purchasers[i]).mintSlave(5, { value });
       }
       let postSupply = await TLKSlaves.connect(purchaser).totalSupply();
       let delta = postSupply - preSupply;
@@ -575,53 +474,6 @@ describe("TLKSlaves", function () {
         Number(contractBalance) + Number(treasuryBalance)
       ).toFixed(3);
       expect(treasuryBalancePost).to.be.eq(target);
-    });
-  });
-
-  describe("NFT Timeout", function () {
-    it("Admin should be able to Timeout an NFT ID", async function () {
-      // Arrange
-      const wallet = admins[0];
-      const blockNum = await ethers.provider.getBlockNumber();
-      const block = await ethers.provider.getBlock(blockNum);
-      let timestamp = block.timestamp;
-      timestamp += 4000;
-      // Act
-      await TLKSlaves.connect(wallet).setTimeout(888, timestamp);
-      // Assert
-      let timeoutValue = await TLKSlaves.getTimeout(888);
-      expect(timeoutValue).to.be.eq(timestamp);
-    });
-
-    it("Check if an NFT is in timeout", async function () {
-      // Arrange
-      const wallet = admins[0];
-      // Act
-      let inTimeout = await TLKSlaves.connect(wallet).inTimeout(888);
-      // Assert
-      expect(inTimeout).to.be.eq(true);
-    });
-
-    it("Regular NFT should NOT have Timeout set", async function () {
-      // Arrange
-      // Act
-      let timeoutValue = await TLKSlaves.getTimeout(0);
-      // Assert
-      expect(timeoutValue).to.be.eq(0);
-    });
-
-    it("Check to see if an NFT timeout unlocks automatically", async function () {
-      // Arrange
-      const wallet = admins[0];
-      const blockNum = await ethers.provider.getBlockNumber();
-      const block = await ethers.provider.getBlock(blockNum);
-      let timestamp = block.timestamp;
-      timestamp -= 4000;
-      // Act
-      await TLKSlaves.connect(wallet).setTimeout(888, timestamp);
-      // Assert
-      let timeoutValue = await TLKSlaves.inTimeout(888);
-      expect(timeoutValue).to.be.eq(false);
     });
   });
 });
