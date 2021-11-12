@@ -10,7 +10,7 @@ import { Contract } from "./components";
 import { Transactor } from "./helpers";
 import { NETWORKS } from "./constants";
 import Account from "./components/Account";
-import Losers from "./pages/Losers";
+import TheLostKingdom from "./components/TheLostKingdom"
 
 import {
   useContractLoader,
@@ -154,8 +154,8 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/">
-            <h1>10k Losers</h1>
-            <Losers />
+            <h1>The Lost Kingdom</h1>
+            <TheLostKingdom />
             <Account
               address={address}
               localProvider={localProvider}
