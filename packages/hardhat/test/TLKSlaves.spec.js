@@ -56,7 +56,7 @@ describe("TLKSlaves", function () {
       admins[3].address,
       admins[4].address,
     ];
-    // Deploy the Loser contract
+    // Deploy the TLKSlaves contract
     TLKSlaves = await TLKSlavesFactory.connect(owner).deploy(
       adminAddresses,
       treasury.address
@@ -163,12 +163,12 @@ describe("TLKSlaves", function () {
       );
     });
 
-    it("Attacker should not be able to setLoserPrice", async function () {
+    it("Attacker should not be able to setSlavePrice", async function () {
       // Arrange
       const attacker = attackers[0];
       const value = ethers.utils.parseUnits((2).toString());
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setLoserPrice(value);
+      const tryToEdit = TLKSlaves.connect(attacker).setSlavePrice(value);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -194,17 +194,6 @@ describe("TLKSlaves", function () {
       const attacker = attackers[0];
       // Act
       const tryToEdit = TLKSlaves.connect(attacker).setSaleTimes([123456, 123456]);
-      // Assert
-      await expect(tryToEdit).to.be.revertedWith(
-        "Nice try! You need to be an admin"
-      );
-    });
-
-    it("Attacker should not be able to setGraveyard", async function () {
-      // Arrange
-      const attacker = attackers[0];
-      // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setGraveyard(attacker.address);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -249,8 +238,8 @@ describe("TLKSlaves", function () {
       const whitelistedWallet = signers[200].address;
       // Act
       await TLKSlaves.connect(admin).setWhitelist([whitelistedWallet]);
-      const account = await TLKSlaves.getLoserHolder(whitelistedWallet);
-      let whitelist = account[3];
+      const account = await TLKSlaves.getTLKSlaveHolder(whitelistedWallet);
+      let whitelist = account[2];
       // Assert
       // eslint-disable-next-line no-unused-expressions
       expect(whitelist).to.be.true;
@@ -271,8 +260,8 @@ describe("TLKSlaves", function () {
       let whitelistArray = createWhitelist();
       // Act
       await TLKSlaves.connect(admin).setWhitelist(whitelistArray);
-      const account = await TLKSlaves.getLoserHolder(whitelistedWallet);
-      let whitelist = account[3];
+      const account = await TLKSlaves.getTLKSlaveHolder(whitelistedWallet);
+      let whitelist = account[2];
       // Assert
       // eslint-disable-next-line no-unused-expressions
       expect(whitelist).to.be.true;
@@ -286,8 +275,8 @@ describe("TLKSlaves", function () {
       // Act
       await TLKSlaves.connect(wallet).setAdmin(signers[6].address, true, 10);
       // Assert
-      const account = await TLKSlaves.getLoserHolder(signers[6].address);
-      let adminFlag = account[4];
+      const account = await TLKSlaves.getTLKSlaveHolder(signers[6].address);
+      let adminFlag = account[3];
       // eslint-disable-next-line no-unused-expressions
       expect(adminFlag).to.be.true;
     });
@@ -316,7 +305,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const wallet = signers[6];
       // Act
-      // const account = await TLKSlaves.getLoserHolder(signers[6].address);
+      // const account = await TLKSlaves.getTLKSlaveHolder(signers[6].address);
       // console.log("Reserves: ", account[0]);
       await TLKSlaves.connect(wallet).setBaseURI("https://www.google.com/");
       await TLKSlaves.connect(wallet).adminMintIds([888]);
@@ -345,31 +334,21 @@ describe("TLKSlaves", function () {
       await expect(getMaxTLKSlaves).to.be.eq(100000);
     });
 
-    it("Admin should be able to setLoserPrice", async function () {
+    it("Admin should be able to setSlavePrice", async function () {
       // Arrange
       const wallet = admins[0];
       let newPrice = ethers.utils.parseUnits((0.07).toString());
       // Act
-      await TLKSlaves.connect(wallet).setLoserPrice(newPrice);
+      await TLKSlaves.connect(wallet).setSlavePrice(newPrice);
       // Assert
-      let getLoserPrice = await TLKSlaves.TLKSLAVES_PRICE();
-      getLoserPrice = Number(ethers.utils.formatEther(getLoserPrice)).toFixed(
+      let getSlavePrice = await TLKSlaves.TLKSLAVES_PRICE();
+      getSlavePrice = Number(ethers.utils.formatEther(getSlavePrice)).toFixed(
         3
       );
-      await expect(getLoserPrice).to.be.eq("0.070");
+      await expect(getSlavePrice).to.be.eq("0.070");
       // return price to normal
       newPrice = ethers.utils.parseUnits((0.069).toString());
-      await TLKSlaves.connect(wallet).setLoserPrice(newPrice);
-    });
-
-    it("Admin should be able to setGraveyard", async function () {
-      // Arrange
-      const wallet = admins[0];
-      // Act
-      await TLKSlaves.connect(wallet).setGraveyard(wallet.address);
-      // Assert
-      let getGraveyard = await TLKSlaves.connect(wallet).graveyardAddress();
-      await expect(getGraveyard).to.be.eq(wallet.address);
+      await TLKSlaves.connect(wallet).setSlavePrice(newPrice);
     });
 
     it("Owner should be able to setTreasury", async function () {
@@ -403,37 +382,6 @@ describe("TLKSlaves", function () {
     });
   });
 
-  describe("Admin Revoke NFT", function () {
-    it("Admin should be able to revokeLoser", async function () {
-      // Arrange
-      const wallet = admins[0];
-      let refundPrice = ethers.utils.parseUnits((0.069).toString());
-      // Act
-      // Get current holder
-      // let nftOwner = await TLKSlaves.connect(wallet).ownerOf(888);
-      // console.log("OwnerAddress = ", nftOwner);
-      let nftOwnerBalance = await signers[6].getBalance();
-      nftOwnerBalance = Number(
-        ethers.utils.formatEther(nftOwnerBalance)
-      ).toFixed(3);
-      // console.log("OwnerBalance = ", nftOwnerBalance);
-      await TLKSlaves.connect(wallet).revokeLoser(888, refundPrice, {
-        value: refundPrice,
-      });
-      // let nftOwnerPost = await TLKSlaves.connect(wallet).ownerOf(888);
-      // console.log("OwnerAddress (Post) = ", nftOwnerPost);
-      let nftOwnerBalancePost = await signers[6].getBalance();
-      nftOwnerBalancePost = Number(
-        ethers.utils.formatEther(nftOwnerBalancePost)
-      ).toFixed(3);
-      // console.log("OwnerBalance (Post) = ", nftOwnerBalancePost);
-      let delta = Number(nftOwnerBalancePost - nftOwnerBalance).toFixed(3);
-      // console.log("Delta = ", delta);
-      // Assert
-      expect(delta).to.be.eq("0.069");
-    });
-  });
-
   describe("Admin Minting", function () {
     it("Admin should be able to mint DEV NFTs", async function () {
       // Arrange
@@ -457,8 +405,8 @@ describe("TLKSlaves", function () {
           errorDetected = true;
         }
         // eslint-disable-next-line no-await-in-loop
-        // let loserHolder = await TLKSlaves.getLoserHolder(admins[i].address);
-        // console.log("Loser Holder (", admins[i].address, "): ", loserHolder);
+        // let slaveHolder = await TLKSlaves.getTLKSlaveHolder(admins[i].address);
+        // console.log("Slave Holder (", admins[i].address, "): ", slaveHolder);
       }
       // Assert
       expect(errorDetected).to.be.eq(false);
@@ -509,7 +457,7 @@ describe("TLKSlaves", function () {
       const purchaser = purchasers[0];
       const value = ethers.utils.parseUnits((0.069 * buyAmount).toString());
       // Act
-      const res = TLKSlaves.connect(purchaser).mintLoser(buyAmount, 0, { value });
+      const res = TLKSlaves.connect(purchaser).mintSlave(buyAmount, { value });
       // Assert
       await expect(res).to.be.revertedWith("Sale must be active'");
     });
@@ -528,7 +476,7 @@ describe("TLKSlaves", function () {
       const purchaser = purchasers[0];
       const value = ethers.utils.parseUnits((0.069 * buyAmount).toString());
       // Act
-      const res = TLKSlaves.connect(purchaser).mintLoser(buyAmount, 0, { value });
+      const res = TLKSlaves.connect(purchaser).mintSlave(buyAmount, { value });
       // Assert
       await expect(res).to.be.revertedWith("Pre-sale has not started");
     });
@@ -539,7 +487,7 @@ describe("TLKSlaves", function () {
       const purchaser = purchasers[0];
       const value = ethers.utils.parseUnits((0.069 * buyAmount).toString());
       // Act
-      const res = TLKSlaves.connect(purchaser).mintLoser(buyAmount, 0, { value });
+      const res = TLKSlaves.connect(purchaser).mintSlave(buyAmount, { value });
       // Assert
       await expect(res).to.be.revertedWith(
         "Sorry you need to be on the whitelist"
@@ -563,7 +511,7 @@ describe("TLKSlaves", function () {
       // Calculate purchase price
       const value = ethers.utils.parseUnits((0.069 * 5).toString());
       // Act
-      await TLKSlaves.connect(purchasers[0]).mintLoser(5, 0, { value });
+      await TLKSlaves.connect(purchasers[0]).mintSlave(5, { value });
       // Check updated balance
       let postBalance = await ethers.provider.getBalance(TLKSlaves.address);
       postBalance = Number(ethers.utils.formatEther(postBalance)).toFixed(3);
@@ -586,7 +534,7 @@ describe("TLKSlaves", function () {
         // eslint-disable-next-line no-await-in-loop
         // console.log("Minting 5 NFTs for Address: ", whitelisted[i].address);
         // eslint-disable-next-line no-await-in-loop
-        await TLKSlaves.connect(whitelisted[i]).mintLoser(5, 0, { value });
+        await TLKSlaves.connect(whitelisted[i]).mintSlave(5, { value });
       }
       let postSupply = await TLKSlaves.connect(purchaser).totalSupply();
       let delta = postSupply - preSupply;
@@ -594,44 +542,6 @@ describe("TLKSlaves", function () {
       // console.log("PostSupply: ", postSupply);
       // console.log("delta: ", delta);
       await expect(delta).to.be.eq(500);
-    });
-
-    it("Purchase 5 NFTs and assassinate 20 (the limit)", async function () {
-      // Arrange
-      const purchaser = signers[1000];
-      const admin = admins[0];
-      // Act
-      // get totalSupply
-      const value = ethers.utils.parseUnits((0.069 * 25).toString());
-      let preSupply = await TLKSlaves.connect(purchaser).totalSupply();
-      // console.log("PreSupply: ", preSupply);
-      // Whitelist the purchaser
-      await TLKSlaves.connect(admin).setWhitelist([purchaser.address]);
-      await TLKSlaves.connect(purchaser).mintLoser(5, 20, { value });
-      let postSupply = await TLKSlaves.connect(purchaser).totalSupply();
-      let delta = postSupply - preSupply;
-      // Assert
-      // console.log("PostSupply: ", postSupply);
-      // console.log("delta: ", delta);
-      await expect(delta).to.be.eq(25);
-    });
-
-    it("Purchase 1 NFT and assassinate 4 to make sure they goto the graveyard", async function () {
-      // Arrange
-      const purchaser = signers[1001];
-      const admin = admins[0];
-      // Act
-      // get totalSupply
-      const value = ethers.utils.parseUnits((0.069 * 5).toString());
-      let graveyardAddress = await TLKSlaves.connect(purchaser).graveyardAddress();
-      // Whitelist the purchaser
-      await TLKSlaves.connect(admin).setWhitelist([purchaser.address]);
-      await TLKSlaves.connect(purchaser).mintLoser(1, 4, { value });
-      let mintIndex = await TLKSlaves.connect(purchaser).mintIndex();
-      // Check the last one to see who the owner is - NFTs are assassinated at the end
-      let ownerAddress = await TLKSlaves.connect(purchaser).ownerOf(mintIndex - 1);
-      // Assert
-      await expect(ownerAddress).to.be.eq(graveyardAddress);
     });
   });
 

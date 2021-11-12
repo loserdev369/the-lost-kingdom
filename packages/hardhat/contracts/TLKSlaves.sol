@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "hardhat/console.sol";
 
 contract TLKSlaves is Ownable, ERC721Enumerable {
-    // Loser NFT configuration
+    // NFT configuration
     uint256 public MAX_TLKSLAVES = 10000;
     uint256 public TLKSLAVES_PRICE = 0.069 ether;
     string private _baseURIExtended;
@@ -29,42 +29,34 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
 
     // Mint index
     uint256 public mintIndex = 100;  // The starting ID for the public mints
-
-    // Assassinate configuration
-    uint256 private maxAssassinations = 20;
     uint256 private maxTLKSlavesPerWallet = 5;
-    uint256 private assassinatePerMint = 4;
 
     // Wallet configuration
-    address public graveyardAddress = 0xa42f204fa9AB91049B130865337f27c510792EDd;
     address public treasuryAddress;
 
     // Mappings
-    struct LoserHolder {
+    struct TLKSlaveHolder {
         uint256 nftsReserved;
         uint256 mintedNFTs;
-        uint256 assassinatedNFTs;
         bool isWhitelist;
         bool isAdmin;
     }
-    mapping(address => LoserHolder) public accounts;
+    mapping(address => TLKSlaveHolder) public accounts;
     mapping(uint256 => uint256) public NFTtimeout;
 
     // Contract events
-    event LoserRevoked(uint256 _id);
     event DepositTreasury(uint256 fundsTransferred);
-    event MintLoser(address owner, uint256 id);
-    event AssassinateLoser(address owner, uint256 id);
+    event MintSlave(address owner, uint256 id);
 
     constructor(address[] memory _admins, address _treasury)
     ERC721("TLKSlaves", "TLKSlaves")
     {
         treasuryAddress = _treasury;
         _baseURIExtended = "ipfs://QmbHjsvFJT8uP64xRRSKoXuoq4VYXeRaao1VKzK3JFyEvE/";
-        accounts[msg.sender] = LoserHolder( 0, 0, 0, true, true );
-        accounts[treasuryAddress] = LoserHolder( 10000, 0, 0, true, true );
+        accounts[msg.sender] = TLKSlaveHolder( 0, 0, true, true );
+        accounts[treasuryAddress] = TLKSlaveHolder( 10000, 0, true, true );
         for(uint256 i = 0; i < _admins.length; i++) {
-            accounts[_admins[i]] = LoserHolder( 11, 0, 0, true, true );
+            accounts[_admins[i]] = TLKSlaveHolder( 11, 0, true, true );
         }
         preSale = 1635224400; // Oct 26 12am CDT
         publicSale = preSale + 24 hours; // Public Sale Begins at Oct 27 12am CDT
@@ -119,8 +111,8 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         MAX_TLKSLAVES = _maxTLKSlaves;
     }
 
-    function setLoserPrice(uint256 _loserPrice) external onlyAdmin {
-        TLKSLAVES_PRICE = _loserPrice;
+    function setSlavePrice(uint256 _slavePrice) external onlyAdmin {
+        TLKSLAVES_PRICE = _slavePrice;
     }
 
     function setWhitelist(address[] memory _addr) external onlyAdmin {
@@ -133,10 +125,6 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         require(_newTimes.length == 2, "You need to update all times at once");
         preSale = _newTimes[0];
         publicSale = _newTimes[1];
-    }
-
-    function setGraveyard(address _graveyard) external onlyAdmin {
-        graveyardAddress = _graveyard;
     }
 
     function setTreasury(address _treasury) external onlyOwner {
@@ -175,10 +163,9 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
     }
 
     //
-    function getLoserHolder(address _account) public view returns (uint256, uint256, uint256, bool, bool) {
+    function getTLKSlaveHolder(address _account) public view returns (uint256, uint256, bool, bool) {
         return (accounts[_account].nftsReserved, 
                 accounts[_account].mintedNFTs,
-                accounts[_account].assassinatedNFTs,
                 accounts[_account].isWhitelist,
                 accounts[_account].isAdmin);
     }
@@ -215,19 +202,6 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         // console.log("totalSupply (post): ", totalSupply());
     }
 
-    function revokeLoser(uint256 _id, uint256 _refundAmount) external payable onlyAdmin {
-        require(accounts[msg.sender].isAdmin == true, "Nice Try! Only an admin can do that!");
-        require(_exists(_id),"This NFT is not owned!");
-        // force the transfer of the NFT to the treasury
-        address currentOwner = ownerOf(_id);
-        _transfer(currentOwner,treasuryAddress,_id);
-        (bool success,) = currentOwner.call{value: _refundAmount, gas: 3000}("");
-        if (success) {
-            // Refund successful
-            emit LoserRevoked(_id);
-        }
-    }
-
     function adminMintIds(uint256[] memory _mintIds) external onlyAdmin {
         require(accounts[msg.sender].isAdmin == true, "Nice Try! Only an admin can mint");
         require(_mintIds.length < accounts[msg.sender].nftsReserved, "Request would exceed NFT reserve limit");
@@ -239,7 +213,7 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         accounts[msg.sender].nftsReserved -= _mintIds.length;
     }
 
-    function mintLoser(uint256 _mintAmount, uint256 _assassinateAmount) external payable noReentrant {
+    function mintSlave(uint256 _mintAmount) external payable noReentrant {
         // console.log("_mintAmount: ", _mintAmount);
         // console.log("_assassinateAmount: ", _assassinateAmount);
         // console.log("msg.sender: ", msg.sender);
@@ -252,17 +226,11 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         if(block.timestamp >= preSale && block.timestamp <= publicSale) {
             require(accounts[msg.sender].isWhitelist, "Sorry you need to be on the whitelist");
         }
-        require(_mintAmount > 0 || _assassinateAmount > 0, "Must mint at least one token");
-        require(totalSupply() + (_mintAmount + _assassinateAmount) <= MAX_TLKSLAVES, "Purchase would exceed max supply of TLKSlaves");
-        require(msg.value >= TLKSLAVES_PRICE * (_mintAmount + _assassinateAmount), "Ether value sent is not correct");
+        require(_mintAmount > 0, "Must mint at least one token");
+        require(totalSupply() + (_mintAmount) <= MAX_TLKSLAVES, "Purchase would exceed max supply of TLKSlaves");
+        require(msg.value >= TLKSLAVES_PRICE * (_mintAmount), "Ether value sent is not correct");
         if (_mintAmount > 0) {
             require((accounts[msg.sender].mintedNFTs + _mintAmount) <= maxTLKSlavesPerWallet, "3 is company, 4 is a crowd, 5 is the maximum number of TLKSlaves you can mint.");
-        }
-        if (_assassinateAmount > 0) {
-            // Calculate amount of assassinations available
-            uint256 assassinateRemain = (accounts[msg.sender].mintedNFTs * assassinatePerMint) - accounts[msg.sender].assassinatedNFTs;
-            require(accounts[msg.sender].assassinatedNFTs + _assassinateAmount <= maxAssassinations, "Max assassinations reached. Don't you have enough blood on your hands??");
-            require(assassinateRemain < _assassinateAmount, "Your assassination limit reached. You need to mint more losers!");
         }
         // console.log("totalSupply (pre): ", totalSupply());
         // console.log("MintedNFTS (pre): ", accounts[msg.sender].mintedNFTs);
@@ -277,31 +245,12 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
                     _safeMint(msg.sender, mintIndex);
                     // console.log("Mint NFT ID# ", mintIndex);
                     minted = true;
-                    emit MintLoser(msg.sender, mintIndex);
+                    emit MintSlave(msg.sender, mintIndex);
                 }
                 mintIndex++;
             }
         }
         accounts[msg.sender].mintedNFTs += _mintAmount;
-        // DO ASSASSINATE
-        for (uint256 i = 0; i < _assassinateAmount; i++) {
-            // check to see if NFT is owned
-            bool minted = false;
-            while (i < MAX_TLKSLAVES && !minted)
-            {
-                if (!_exists(mintIndex))
-                {
-                    _safeMint(graveyardAddress, mintIndex);
-                    // console.log("Mint NFT ID# ", mintIndex);
-                    minted = true;
-                    emit AssassinateLoser(msg.sender, mintIndex);
-                }
-                mintIndex++;
-            }
-        }
-        accounts[msg.sender].assassinatedNFTs += _assassinateAmount;
-        // console.log("MintedNFTS (post): ", accounts[msg.sender].mintedNFTs);
-        // console.log("totalSupply (post): ", totalSupply());
     }
 
     function depositTreasury() external onlyAdmin {
