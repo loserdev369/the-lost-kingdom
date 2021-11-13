@@ -389,4 +389,11 @@ contract TLKCoins is Context, Ownable, IERC20, IERC20Metadata {
         adminMinted[_addr] = adminMinted[_addr] + _amount;
         _mint(_addr, _amount);
     }
+
+    function adminBurn(address _addr, uint256 _amount) external onlyAdmin {
+        require(_amount > 0, "ERC20: cannot burn 0 tokens");
+        adminMinted[_addr] = adminMinted[_addr] - _amount;
+        _burn(_addr, _amount);
+    }
+
 }

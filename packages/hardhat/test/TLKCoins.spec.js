@@ -123,7 +123,7 @@ describe("TLKCoins", function () {
       let preSupply = await TLKCoins.connect(wallet).totalSupply();
     //   console.log("totalSupply (pre) = ", preSupply);
       // Act
-      let adminTokensMinted = await TLKCoins.connect(wallet).adminMint(wallet.address, amount);
+      await TLKCoins.connect(wallet).adminMint(wallet.address, amount);
       // Assert
       let balance = await TLKCoins.connect(wallet).balanceOf(wallet.address);
     //   console.log("Wallet Balance = ", balance);
@@ -134,6 +134,33 @@ describe("TLKCoins", function () {
             let delta = postSupply - preSupply;
             // console.log("delta = ", delta);
             if (delta == ethers.utils.parseUnits((2).toString()))
+            {
+                successFlag = true;
+            }
+      }
+      expect(successFlag).to.be.eq(true);
+    });
+
+    it("Admin should be able to burn tokens", async function () {
+      // Arrange
+      const wallet = signers[6];
+      let amount = ethers.utils.parseUnits((2).toString());
+      // console.log("Amount = ", amount);
+      let successFlag = false;
+      let preSupply = await TLKCoins.connect(wallet).totalSupply();
+      // console.log("totalSupply (pre) = ", preSupply);
+      // Act
+      await TLKCoins.connect(wallet).adminBurn(wallet.address, amount);
+      // Assert
+      let balance = await TLKCoins.connect(wallet).balanceOf(wallet.address);
+      // console.log("Wallet Balance = ", balance);
+      // check to see if we have the correct balance of tokens in the wallet
+      if (balance == "0") {
+            let postSupply = await TLKCoins.connect(wallet).totalSupply();
+            // console.log("totalSupply (post) = ", postSupply);
+            let delta = preSupply - amount;
+            // console.log("delta = ", delta);
+            if (delta == ethers.utils.parseUnits((0).toString()))
             {
                 successFlag = true;
             }
