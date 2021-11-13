@@ -509,8 +509,8 @@ contract TLKNFTStake is Context, ERC165, IERC1155, IERC1155MetadataURI, Ownable 
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: TRANSFER_FAILED');
     }
 
-    function stakeTLKGenesis(uint id) external {
-        // Allow for the staking of the GenesisNFT
-        require(id > 0, 'stakeTLKGensis must be a valid ID');
-    }
+    // function stakeTLKGenesis(uint id) external {
+    //     // Allow for the staking of the GenesisNFT
+    //     require(id > 0, 'stakeTLKGensis must be a valid ID');
+    // }
 }
