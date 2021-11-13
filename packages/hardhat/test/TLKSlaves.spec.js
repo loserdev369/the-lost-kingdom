@@ -18,7 +18,7 @@ let TLKSlavesFactory;
 let owner;
 let treasury;
 
-describe.skip("TLKSlaves", function () {
+describe("TLKSlaves", function () {
   before(async function () {
     // get all of the signers created in hardhat.config.js
     signers = await ethers.getSigners();
@@ -273,7 +273,7 @@ describe.skip("TLKSlaves", function () {
       // Act
       await TLKSlaves.connect(wallet).setMaxTLKSlaves(100000);
       // Assert
-      const getMaxTLKSlaves = await TLKSlaves.MAX_TLKSLAVES();
+      const getMaxTLKSlaves = await TLKSlaves._maxTLKSlaves();
       await expect(getMaxTLKSlaves).to.be.eq(100000);
     });
 
@@ -284,7 +284,7 @@ describe.skip("TLKSlaves", function () {
       // Act
       await TLKSlaves.connect(wallet).setSlavePrice(newPrice);
       // Assert
-      let getSlavePrice = await TLKSlaves.TLKSLAVES_PRICE();
+      let getSlavePrice = await TLKSlaves._priceTLKSlaves();
       getSlavePrice = Number(ethers.utils.formatEther(getSlavePrice)).toFixed(
         3
       );
@@ -300,7 +300,7 @@ describe.skip("TLKSlaves", function () {
       // Act
       await TLKSlaves.connect(owner).setTreasury(wallet.address);
       // Assert
-      let getTreasury = await TLKSlaves.connect(wallet).treasuryAddress();
+      let getTreasury = await TLKSlaves.connect(wallet)._treasuryAddress();
       await expect(getTreasury).to.be.eq(wallet.address);
     });
   });
@@ -455,7 +455,7 @@ describe.skip("TLKSlaves", function () {
         ethers.utils.formatEther(contractBalance)
       ).toFixed(3);
       // console.log("contractBalance = ", contractBalance);
-      let treasuryAddress = await TLKSlaves.treasuryAddress();
+      let treasuryAddress = await TLKSlaves._treasuryAddress();
       let treasuryBalance = await provider.getBalance(treasuryAddress);
       treasuryBalance = Number(
         ethers.utils.formatEther(treasuryBalance)
