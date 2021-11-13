@@ -17,7 +17,7 @@ let TLKCoins;
 let TLKCoinsFactory;
 let owner;
 
-describe("TLKCoins", function () {
+describe.skip("TLKCoins", function () {
   before(async function () {
     // get all of the signers created in hardhat.config.js
     signers = await ethers.getSigners();
