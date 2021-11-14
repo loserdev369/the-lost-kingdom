@@ -46,20 +46,20 @@ contract TLKNFTStake is Context, ERC165, IERC1155, IERC1155MetadataURI, Ownable 
     /**
      * @dev See {_setURI}.
      */
-    constructor(string memory uri_, IERC721 TLKGenesis, IERC721 TLKSlaves) {
+    constructor(string memory uri_, address TLKGenesis, address TLKSlaves) {
         _setURI(uri_);
 
         // Set the NFT addresses
-        _TLKGenesis = TLKGenesis;
-        _TLKSlaves = TLKSlaves;
+        _TLKGenesis = IERC721(TLKGenesis);
+        _TLKSlaves = IERC721(TLKSlaves);
 
         // Set the owner as an admin
-        _admins[msg.sender] = true;
+        _admins[_msgSender()] = true;
     }
 
     /** Modifiers */
     modifier onlyAdmin() {
-        require(_admins[msg.sender] == true, "Nice try! You need to be an admin");
+        require(_admins[_msgSender()] == true, "Nice try! You need to be an admin");
         _;
     }
 
@@ -509,8 +509,17 @@ contract TLKNFTStake is Context, ERC165, IERC1155, IERC1155MetadataURI, Ownable 
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: TRANSFER_FAILED');
     }
 
-    // function stakeTLKGenesis(uint id) external {
-    //     // Allow for the staking of the GenesisNFT
-    //     require(id > 0, 'stakeTLKGensis must be a valid ID');
-    // }
+    function stakeTLKGenesis(uint id) external {
+        // Allow for the staking of the GenesisNFT
+        require(id > 0, 'stakeTLKGensis must be a valid ID');
+
+        // Approve the transfer for the Genesis NFT
+        _TLKGenesis.approve(address(this),id);
+        
+        // Transfer the Genesis NFT to the staking contract
+        _TLKGenesis.safeTransferFrom(_msgSender(),address(this),id);
+
+        // Mint a new staked NFT and send to the owner
+        _mint(_msgSender(),id,1,"");
+    }
 }

@@ -94,6 +94,11 @@ abstract contract PaintSwapERC721 is ERC721Enumerable {
   }
 }
 
+// import "../ERC721.sol";
+// pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
 contract TheLostKingdomNFT is PaintSwapERC721, Ownable, IERC2981 {
   using Counters for Counters.Counter;
   Counters.Counter private tokenIds;
