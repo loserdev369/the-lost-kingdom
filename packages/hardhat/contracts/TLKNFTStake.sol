@@ -25,7 +25,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "hardhat/console.sol";
 
-contract TLKNFTStake is Context, ERC165, IERC1155, IERC1155MetadataURI, Ownable {
+contract TLKNFTStake is Context, ERC165, IERC1155MetadataURI, IERC721Receiver, Ownable {
     using SafeMath for uint256;
     using Address for address;
 
@@ -489,6 +489,15 @@ contract TLKNFTStake is Context, ERC165, IERC1155, IERC1155MetadataURI, Ownable 
         return array;
     }
 
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external override pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
     function setAdmin(address addr, bool admin) external onlyOwner {
         _admins[addr] = admin;
     }
@@ -513,13 +522,10 @@ contract TLKNFTStake is Context, ERC165, IERC1155, IERC1155MetadataURI, Ownable 
         // Allow for the staking of the GenesisNFT
         require(id > 0, 'stakeTLKGensis must be a valid ID');
 
-        // Approve the transfer for the Genesis NFT
-        _TLKGenesis.approve(address(this),id);
-        
         // Transfer the Genesis NFT to the staking contract
         _TLKGenesis.safeTransferFrom(_msgSender(),address(this),id);
 
         // Mint a new staked NFT and send to the owner
-        _mint(_msgSender(),id,1,"");
+        _mint(_msgSender(),id,id,"");
     }
 }
