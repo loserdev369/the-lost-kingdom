@@ -13,12 +13,12 @@ let signers; // this is an array of accounts
 let attackers;
 let purchasers = [];
 let admins;
-let TLKSlaves;
-let TLKSlavesFactory;
+let TLKPlayers;
+let TLKPlayersFactory;
 let owner;
 let treasury;
 
-describe("TLKSlaves", function () {
+describe("TLKPlayers", function () {
   before(async function () {
     // get all of the signers created in hardhat.config.js
     signers = await ethers.getSigners();
@@ -40,7 +40,7 @@ describe("TLKSlaves", function () {
     }
 
     // create the contract
-    TLKSlavesFactory = await ethers.getContractFactory("TLKSlaves");
+    TLKPlayersFactory = await ethers.getContractFactory("TLKPlayers");
     // Prepare the structs for deployment
     const adminAddresses = [
       // claim + admin rights
@@ -50,8 +50,8 @@ describe("TLKSlaves", function () {
       admins[3].address,
       admins[4].address,
     ];
-    // Deploy the TLKSlaves contract
-    TLKSlaves = await TLKSlavesFactory.connect(owner).deploy(
+    // Deploy the TLKPlayers contract
+    TLKPlayers = await TLKPlayersFactory.connect(owner).deploy(
       adminAddresses,
       treasury.address
     );
@@ -62,7 +62,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setAdmin(
+      const tryToEdit = TLKPlayers.connect(attacker).setAdmin(
         attacker.address,
         true,
         10
@@ -77,7 +77,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setTreasury(attacker.address);
+      const tryToEdit = TLKPlayers.connect(attacker).setTreasury(attacker.address);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Ownable: caller is not the owner"
@@ -91,7 +91,7 @@ describe("TLKSlaves", function () {
       const attacker = attackers[0];
       // Act
       const tryToEdit =
-        TLKSlaves.connect(attacker).setProvenanceHash("HASH_STRING");
+        TLKPlayers.connect(attacker).setProvenanceHash("HASH_STRING");
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -102,7 +102,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).lockProvenance();
+      const tryToEdit = TLKPlayers.connect(attacker).lockProvenance();
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -113,7 +113,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setBaseURI(
+      const tryToEdit = TLKPlayers.connect(attacker).setBaseURI(
         "https://www.google.com/"
       );
       // Assert
@@ -126,7 +126,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setContractURI(
+      const tryToEdit = TLKPlayers.connect(attacker).setContractURI(
         "https://www.google.com/"
       );
       // Assert
@@ -139,18 +139,18 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setSale(true);
+      const tryToEdit = TLKPlayers.connect(attacker).setSale(true);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
       );
     });
 
-    it("Attacker should not be able to setMaxTLKSlaves", async function () {
+    it("Attacker should not be able to setMaxTLKPlayers", async function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setMaxTLKSlaves(20000);
+      const tryToEdit = TLKPlayers.connect(attacker).setMaxTLKPlayers(20000);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -162,7 +162,7 @@ describe("TLKSlaves", function () {
       const attacker = attackers[0];
       const value = ethers.utils.parseUnits((2).toString());
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setSlavePrice(value);
+      const tryToEdit = TLKPlayers.connect(attacker).setSlavePrice(value);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -173,7 +173,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const attacker = attackers[0];
       // Act
-      const tryToEdit = TLKSlaves.connect(attacker).setSale(true);
+      const tryToEdit = TLKPlayers.connect(attacker).setSale(true);
       // Assert
       await expect(tryToEdit).to.be.revertedWith(
         "Nice try! You need to be an admin"
@@ -187,9 +187,9 @@ describe("TLKSlaves", function () {
       let isSaleLive;
       const admin = admins[0];
       // Act
-      await TLKSlaves.connect(admin).setSale(true);
+      await TLKPlayers.connect(admin).setSale(true);
       // eslint-disable-next-line prefer-const
-      isSaleLive = await TLKSlaves._isSaleLive();
+      isSaleLive = await TLKPlayers._isSaleLive();
       // Assert
       expect(isSaleLive).to.be.a("boolean");
       // eslint-disable-next-line no-unused-expressions
@@ -201,9 +201,9 @@ describe("TLKSlaves", function () {
       let isSaleLive;
       const admin = admins[0];
       // Act
-      await TLKSlaves.connect(admin).setSale(false);
+      await TLKPlayers.connect(admin).setSale(false);
       // eslint-disable-next-line prefer-const
-      isSaleLive = await TLKSlaves._isSaleLive();
+      isSaleLive = await TLKPlayers._isSaleLive();
       // Assert
       expect(isSaleLive).to.be.a("boolean");
       // eslint-disable-next-line no-unused-expressions
@@ -216,9 +216,9 @@ describe("TLKSlaves", function () {
       // Arrange
       const wallet = owner;
       // Act
-      await TLKSlaves.connect(wallet).setAdmin(signers[6].address, true, 10);
+      await TLKPlayers.connect(wallet).setAdmin(signers[6].address, true, 10);
       // Assert
-      const account = await TLKSlaves.getTLKSlaveHolder(signers[6].address);
+      const account = await TLKPlayers.getTLKSlaveHolder(signers[6].address);
       let adminFlag = account[2];
       // eslint-disable-next-line no-unused-expressions
       expect(adminFlag).to.be.true;
@@ -228,9 +228,9 @@ describe("TLKSlaves", function () {
       // Arrange
       const wallet = admins[0];
       // Act
-      await TLKSlaves.connect(wallet).setProvenanceHash("HASH_STRING");
+      await TLKPlayers.connect(wallet).setProvenanceHash("HASH_STRING");
       // Assert
-      const getHash = await TLKSlaves.PROVENANCE_HASH();
+      const getHash = await TLKPlayers.PROVENANCE_HASH();
       await expect(getHash).to.be.eq("HASH_STRING");
     });
 
@@ -238,9 +238,9 @@ describe("TLKSlaves", function () {
       // Arrange
       const wallet = admins[0];
       // Act
-      await TLKSlaves.connect(wallet).lockProvenance();
+      await TLKPlayers.connect(wallet).lockProvenance();
       // Assert
-      const getLock = await TLKSlaves.PROVENANCE_LOCK();
+      const getLock = await TLKPlayers.PROVENANCE_LOCK();
       await expect(getLock).to.be.true;
     });
 
@@ -248,12 +248,12 @@ describe("TLKSlaves", function () {
       // Arrange
       const wallet = signers[6];
       // Act
-      // const account = await TLKSlaves.getTLKSlaveHolder(signers[6].address);
+      // const account = await TLKPlayers.getTLKSlaveHolder(signers[6].address);
       // console.log("Reserves: ", account[0]);
-      await TLKSlaves.connect(wallet).setBaseURI("https://www.google.com/");
-      await TLKSlaves.connect(wallet).adminMintIds([888]);
+      await TLKPlayers.connect(wallet).setBaseURI("https://www.google.com/");
+      await TLKPlayers.connect(wallet).adminMintIds([888]);
       // Assert
-      const getBaseURI = await TLKSlaves.tokenURI(888);
+      const getBaseURI = await TLKPlayers.tokenURI(888);
       await expect(getBaseURI).to.be.eq("https://www.google.com/888");
     });
 
@@ -261,20 +261,20 @@ describe("TLKSlaves", function () {
       // Arrange
       const wallet = signers[6];
       // Act
-      await TLKSlaves.connect(wallet).setContractURI("https://www.google.com/");
+      await TLKPlayers.connect(wallet).setContractURI("https://www.google.com/");
       // Assert
-      const getContractURI = await TLKSlaves.contractURI();
+      const getContractURI = await TLKPlayers.contractURI();
       await expect(getContractURI).to.be.eq("https://www.google.com/");
     });
 
-    it("Admin should be able to setMaxTLKSlaves", async function () {
+    it("Admin should be able to setMaxTLKPlayers", async function () {
       // Arrange
       const wallet = admins[0];
       // Act
-      await TLKSlaves.connect(wallet).setMaxTLKSlaves(100000);
+      await TLKPlayers.connect(wallet).setMaxTLKPlayers(100000);
       // Assert
-      const getMaxTLKSlaves = await TLKSlaves._maxTLKSlaves();
-      await expect(getMaxTLKSlaves).to.be.eq(100000);
+      const getMaxTLKPlayers = await TLKPlayers._maxTLKPlayers();
+      await expect(getMaxTLKPlayers).to.be.eq(100000);
     });
 
     it("Admin should be able to setSlavePrice", async function () {
@@ -282,25 +282,25 @@ describe("TLKSlaves", function () {
       const wallet = admins[0];
       let newPrice = ethers.utils.parseUnits((0.07).toString());
       // Act
-      await TLKSlaves.connect(wallet).setSlavePrice(newPrice);
+      await TLKPlayers.connect(wallet).setSlavePrice(newPrice);
       // Assert
-      let getSlavePrice = await TLKSlaves._priceTLKSlaves();
+      let getSlavePrice = await TLKPlayers._priceTLKPlayers();
       getSlavePrice = Number(ethers.utils.formatEther(getSlavePrice)).toFixed(
         3
       );
       await expect(getSlavePrice).to.be.eq("0.070");
       // return price to normal
       newPrice = ethers.utils.parseUnits((0.069).toString());
-      await TLKSlaves.connect(wallet).setSlavePrice(newPrice);
+      await TLKPlayers.connect(wallet).setSlavePrice(newPrice);
     });
 
     it("Owner should be able to setTreasury", async function () {
       // Arrange
       const wallet = owner;
       // Act
-      await TLKSlaves.connect(owner).setTreasury(wallet.address);
+      await TLKPlayers.connect(owner).setTreasury(wallet.address);
       // Assert
-      let getTreasury = await TLKSlaves.connect(wallet)._treasuryAddress();
+      let getTreasury = await TLKPlayers.connect(wallet)._treasuryAddress();
       await expect(getTreasury).to.be.eq(wallet.address);
     });
   });
@@ -311,7 +311,7 @@ describe("TLKSlaves", function () {
       const wallet = signers[88];
       let passedTest = false;
       // Act
-      let saleValue = await TLKSlaves.connect(wallet).getSale();
+      let saleValue = await TLKPlayers.connect(wallet).getSale();
       // console.log("SaleValue: ", saleValue);
       // Assert
       await expect(saleValue).to.be.false;
@@ -333,15 +333,15 @@ describe("TLKSlaves", function () {
       for (let i = 0; i < admins.length; i++) {
         // console.log("Minting Admin #", i, " NFT#", adminNFTs[i]);
         // eslint-disable-next-line no-await-in-loop
-        await TLKSlaves.connect(admins[i]).adminMintIds([adminNFTs[i]]);
+        await TLKPlayers.connect(admins[i]).adminMintIds([adminNFTs[i]]);
         // eslint-disable-next-line no-await-in-loop
-        let nftOwner = await TLKSlaves.connect(admins[i]).ownerOf([adminNFTs[i]]);
+        let nftOwner = await TLKPlayers.connect(admins[i]).ownerOf([adminNFTs[i]]);
         // console.log("Owner NFT#", adminNFTs[i], " = ", nftOwner);
         if (nftOwner !== admins[i].address) {
           errorDetected = true;
         }
         // eslint-disable-next-line no-await-in-loop
-        // let slaveHolder = await TLKSlaves.getTLKSlaveHolder(admins[i].address);
+        // let slaveHolder = await TLKPlayers.getTLKSlaveHolder(admins[i].address);
         // console.log("Slave Holder (", admins[i].address, "): ", slaveHolder);
       }
       // Assert
@@ -355,13 +355,13 @@ describe("TLKSlaves", function () {
         618, 666, 720, 911, 1080, 1138, 1337, 1776, 2020, 2160, 9000,
       ];
       const purchaser = treasury;
-      let preSupply = await TLKSlaves.connect(purchaser).totalSupply();
+      let preSupply = await TLKPlayers.connect(purchaser).totalSupply();
       let numReserved = reservedIDs.length;
       // console.log("numReserved: ", numReserved);
       // console.log("PreSupply: ", preSupply);
       // Act
-      await TLKSlaves.connect(purchaser).adminMintIds(reservedIDs);
-      let postSupply = await TLKSlaves.connect(purchaser).totalSupply();
+      await TLKPlayers.connect(purchaser).adminMintIds(reservedIDs);
+      let postSupply = await TLKPlayers.connect(purchaser).totalSupply();
       let delta = postSupply - preSupply;
       // Assert
       // console.log("PostSupply: ", postSupply);
@@ -373,12 +373,12 @@ describe("TLKSlaves", function () {
   describe("Minting", function () {
     before(async function () {
       const admin = admins[0];
-      await TLKSlaves.connect(admin).setSale(true);
+      await TLKPlayers.connect(admin).setSale(true);
     });
 
     afterEach(async function () {
       const admin = admins[0];
-      await TLKSlaves.connect(admin).setSale(true);
+      await TLKPlayers.connect(admin).setSale(true);
       const blockNum = await ethers.provider.getBlockNumber();
       const block = await ethers.provider.getBlock(blockNum);
       const timestamp = block.timestamp;
@@ -387,12 +387,12 @@ describe("TLKSlaves", function () {
     it("Should not be able to mint before sale is active", async function () {
       // Arrange
       const admin = admins[0];
-      await TLKSlaves.connect(admin).setSale(false);
+      await TLKPlayers.connect(admin).setSale(false);
       const buyAmount = 5;
       const purchaser = purchasers[0];
       const value = ethers.utils.parseUnits((0.069 * buyAmount).toString());
       // Act
-      const res = TLKSlaves.connect(purchaser).mintSlave(buyAmount, { value });
+      const res = TLKPlayers.connect(purchaser).mintSlave(buyAmount, { value });
       // Assert
       await expect(res).to.be.revertedWith("Sale must be active'");
     });
@@ -404,17 +404,17 @@ describe("TLKSlaves", function () {
       let block = await ethers.provider.getBlock(blockNum);
       let timestamp = block.timestamp;
       // let provider = ethers.getDefaultProvider();
-      let preBalance = await ethers.provider.getBalance(TLKSlaves.address);
+      let preBalance = await ethers.provider.getBalance(TLKPlayers.address);
       preBalance = Number(ethers.utils.formatEther(preBalance)).toFixed(3);
-      // console.log("TLKSlaves Balance (pre): ", preBalance);
+      // console.log("TLKPlayers Balance (pre): ", preBalance);
       // Calculate purchase price
       const value = ethers.utils.parseUnits((0.069 * 5).toString());
       // Act
-      await TLKSlaves.connect(purchasers[0]).mintSlave(5, { value });
+      await TLKPlayers.connect(purchasers[0]).mintSlave(5, { value });
       // Check updated balance
-      let postBalance = await ethers.provider.getBalance(TLKSlaves.address);
+      let postBalance = await ethers.provider.getBalance(TLKPlayers.address);
       postBalance = Number(ethers.utils.formatEther(postBalance)).toFixed(3);
-      // console.log("TLKSlaves Balance (post): ", postBalance);
+      // console.log("TLKPlayers Balance (post): ", postBalance);
       let targetBalance = Number(Number(preBalance) + 0.069 * 5).toFixed(3);
       // console.log("Target Value: ", targetBalance);
       // Assert
@@ -425,7 +425,7 @@ describe("TLKSlaves", function () {
       // Arrange
       const purchaser = admins[0];
       const value = ethers.utils.parseUnits((0.069 * 5).toString());
-      let preSupply = await TLKSlaves.connect(purchaser).totalSupply();
+      let preSupply = await TLKPlayers.connect(purchaser).totalSupply();
       // console.log("PreSupply: ", preSupply);
       // Act
       // Loop through and buy the MAX NFTs from each purchaser wallet
@@ -433,9 +433,9 @@ describe("TLKSlaves", function () {
         // eslint-disable-next-line no-await-in-loop
         // console.log("Minting 5 NFTs for Address: ", purchasers[i].address);
         // eslint-disable-next-line no-await-in-loop
-        await TLKSlaves.connect(purchasers[i]).mintSlave(5, { value });
+        await TLKPlayers.connect(purchasers[i]).mintSlave(5, { value });
       }
-      let postSupply = await TLKSlaves.connect(purchaser).totalSupply();
+      let postSupply = await TLKPlayers.connect(purchaser).totalSupply();
       let delta = postSupply - preSupply;
       // Assert
       // console.log("PostSupply: ", postSupply);
@@ -450,18 +450,18 @@ describe("TLKSlaves", function () {
       const wallet = admins[0];
       // Act
       const provider = ethers.provider;
-      let contractBalance = await provider.getBalance(TLKSlaves.address);
+      let contractBalance = await provider.getBalance(TLKPlayers.address);
       contractBalance = Number(
         ethers.utils.formatEther(contractBalance)
       ).toFixed(3);
       // console.log("contractBalance = ", contractBalance);
-      let treasuryAddress = await TLKSlaves._treasuryAddress();
+      let treasuryAddress = await TLKPlayers._treasuryAddress();
       let treasuryBalance = await provider.getBalance(treasuryAddress);
       treasuryBalance = Number(
         ethers.utils.formatEther(treasuryBalance)
       ).toFixed(3);
       // console.log("treasuryBalance = ", treasuryBalance);
-      await TLKSlaves.connect(wallet).depositTreasury();
+      await TLKPlayers.connect(wallet).depositTreasury();
       let treasuryBalancePost = await provider.getBalance(treasuryAddress);
       treasuryBalancePost = Number(
         ethers.utils.formatEther(treasuryBalancePost)

@@ -2,10 +2,10 @@
 pragma solidity 0.8.2;
 
 /*
- _____ _   _  __   __  _    __   _   _  ___  __  
-|_   _| | | |/ / /' _/| |  /  \ | \ / || __/' _/ 
-  | | | |_|   <  `._`.| |_| /\ |`\ V /'| _|`._`. 
-  |_| |___|_|\_\ |___/|___|_||_|  \_/  |___|___/ 
+  _____ _    _  __  ___ _      ___   _____ ___  ___ 
+ |_   _| |  | |/ / | _ \ |    /_\ \ / / __| _ \/ __|
+   | | | |__| ' <  |  _/ |__ / _ \ V /| _||   /\__ \
+   |_| |____|_|\_\ |_| |____/_/ \_\_| |___|_|_\|___/
 
  */
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -14,13 +14,13 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "hardhat/console.sol";
 
-contract TLKSlaves is Ownable, ERC721Enumerable {
+contract TLKPlayers is Ownable, ERC721Enumerable {
     using SafeMath for uint256;
     using Address for address;
 
     // NFT configuration
-    uint256 public _maxTLKSlaves = 10000;
-    uint256 public _priceTLKSlaves = 11 ether;  // 11 FTM
+    uint256 public _maxTLKPlayers = 50000;
+    uint256 public _priceTLKPlayers = 11 ether;  // 11 FTM
     string private _baseURIExtended;
     string private _contractURI;
     string public PROVENANCE_HASH; // this will be the original CID from IPFS to validate Provenance of collection
@@ -49,7 +49,7 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
     event MintSlave(address owner, uint256 id);
 
     constructor(address[] memory admins, address treasury)
-    ERC721("TLKSlaves", "TLKSlaves")
+    ERC721("TLKPlayers", "TLKPlayers")
     {
         _treasuryAddress = treasury;
         _baseURIExtended = "ipfs://QmbHjsvFJT8uP64xRRSKoXuoq4VYXeRaao1VKzK3JFyEvE/";
@@ -100,13 +100,13 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         _contractURI = newURI;
     }
 
-    function setMaxTLKSlaves(uint256 maxTLKSlaves) external onlyAdmin {
-        require(maxTLKSlaves > totalSupply(), "New limit must be larger than total supply!");
-        _maxTLKSlaves = maxTLKSlaves;
+    function setMaxTLKPlayers(uint256 maxTLKPlayers) external onlyAdmin {
+        require(maxTLKPlayers > totalSupply(), "New limit must be larger than total supply!");
+        _maxTLKPlayers = maxTLKPlayers;
     }
 
     function setSlavePrice(uint256 slavePrice) external onlyAdmin {
-        _priceTLKSlaves = slavePrice;
+        _priceTLKPlayers = slavePrice;
     }
 
     function setTreasury(address treasury) external onlyOwner {
@@ -153,7 +153,7 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         for (uint256 i = 0; i < amount; i++) {
             // check to see if NFT is owned
             bool minted = false;
-            while (i < _maxTLKSlaves && !minted)
+            while (i < _maxTLKPlayers && !minted)
             {
                 if (!_exists(startIndex))
                 {
@@ -188,15 +188,15 @@ contract TLKSlaves is Ownable, ERC721Enumerable {
         require(!Address.isContract(msg.sender), "Nice try contracts can't mint");
         require(_isSaleLive, "Sale must be active");
         require(mintAmount > 0, "Must mint at least one token");
-        require(totalSupply() + mintAmount <= _maxTLKSlaves, "Purchase would exceed max supply of slaves");
-        require(msg.value >= _priceTLKSlaves * mintAmount, "Ether value sent is not correct");
+        require(totalSupply() + mintAmount <= _maxTLKPlayers, "Purchase would exceed max supply of Players");
+        require(msg.value >= _priceTLKPlayers * mintAmount, "Ether value sent is not correct");
         // console.log("totalSupply (pre): ", totalSupply());
         // console.log("MintedNFTS (pre): ", _accounts[msg.sender].mintedNFTs);
         // DO MINT
         for (uint256 i = 0; i < mintAmount; i++) {
             // check to see if NFT is owned
             bool minted = false;
-            while (i < _maxTLKSlaves && !minted)
+            while (i < _maxTLKPlayers && !minted)
             {
                 if (!_exists(_mintIndex))
                 {
