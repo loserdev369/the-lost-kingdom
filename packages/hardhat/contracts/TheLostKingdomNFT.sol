@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+// TODO Remove Hardhat console
 import "hardhat/console.sol";
 
 // import "../interfaces/IERC2981.sol";
