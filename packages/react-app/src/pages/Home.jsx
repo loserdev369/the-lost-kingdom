@@ -8,6 +8,7 @@ import TLKIntroText from '../assets/pages/hero/once-upon-a-time.png'
 import LearnMoreBtn from '../assets/pages/hero/learn-more-btn.png'
 import TLKBG from '../assets/pages/hero/hero-bg-image.png'
 import bgTexture from '../assets/pages/mint/bg-texture.png'
+import About from '../components/About.jsx'
 
 const Hero = styled.div`
   background: url(${TLKBG}) center center ;
@@ -15,10 +16,6 @@ const Hero = styled.div`
   height: 100vh;
   display: grid;
   grid-template-rows: 10% 90%;
-`
-
-const BGTexture = styled.img`
-  background: url(${bgTexture});
 `
 
 const MiddleSection = styled.div`
@@ -49,6 +46,7 @@ const LearnMore = styled.img`
 
 const HomeWrap = styled.div`
   background: url(${bgTexture});
+  background-attachment: fixed;
 `
 
 function Home() {
@@ -73,6 +71,7 @@ function Home() {
         </MiddleSection>
       </ Hero>
       <Mint />
+      <About />
     </HomeWrap>
   )
 }
