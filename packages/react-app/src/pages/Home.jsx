@@ -10,17 +10,35 @@ const BG = styled.div`
   background: url(${TLKBG}) center center ;
   background-size: cover;
   height: 100vh;
+  display: grid;
+  grid-template-rows: 10% 90%;
 `
 
 const MiddleSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: start;
+  margin-left: 3rem;
 `
 
-const Title = styled.img``
-const IntroText = styled.img``
-const LearnMore = styled.img``
+const Title = styled.img`
+  @media screen and (max-width: 1440px) {
+    width: 63vw;
+  }
+
+`
+const IntroText = styled.img`
+  @media screen and (max-width: 1440px) {
+    width: 60vw;
+  }
+`
+const LearnMore = styled.img`
+  cursor: pointer;
+  margin-top: 3rem;
+  @media screen and (max-width: 1440px) {
+    width: 20vw;
+  }
+`
 
 function Home() {
   return (
