@@ -56,7 +56,7 @@ function Home() {
       <Global
         styles={css`
           body {
-            background: linear-gradient(90deg, rgba(34,63,43,1) 0%, rgba(73,161,132,1) 50%, rgba(34,63,43,1) 100%);
+            background: linear-gradient(180deg, rgba(34,63,43,1) 0%, rgba(73,161,132,1) 50%, rgba(34,63,43,1) 100%);
             position: relative;
           }
         `}
