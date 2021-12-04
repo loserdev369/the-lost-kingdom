@@ -2,6 +2,7 @@ import React from 'react'
 import NavBar from "../components/NavBar.jsx"
 import Mint from "../components/Mint.jsx"
 import styled from '@emotion/styled'
+import { Global, css } from "@emotion/react"
 import TLKTitle from '../assets/pages/hero/the-lost-kingdom.png'
 import TLKIntroText from '../assets/pages/hero/once-upon-a-time.png'
 import LearnMoreBtn from '../assets/pages/hero/learn-more-btn.png'
@@ -44,6 +45,13 @@ const LearnMore = styled.img`
 function Home() {
   return (
     <>
+      <Global
+        styles={css`
+          body {
+            background: linear-gradient(90deg, rgba(34,63,43,1) 0%, rgba(73,161,132,1) 50%, rgba(34,63,43,1) 100%);
+          }
+        `}
+      />
       <Hero>
         <NavBar />
         <MiddleSection>
