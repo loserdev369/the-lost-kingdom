@@ -39,15 +39,34 @@ describe("TLKNFTStake", function () {
       purchasers.push(signers[100 + i]);
     }
 
-    // get the address for the genesis contract
+    // get the address for the TLKGenesis contract
     TheLostKingdomNFTFactory = await ethers.getContractFactory("TheLostKingdomNFT");
     // Deploy the TheLostKingdomNFT contract
-    TheLostKingdomNFT = await TheLostKingdomNFTFactory.connect(owner).deploy();
+    TLKGenesis = await TheLostKingdomNFTFactory.connect(owner).deploy();
+
+    // get the address for the TLKPlayers contract
+    TLKPlayersFactory = await ethers.getContractFactory("TLKPlayers");
+    // Deploy the TLKPlayers contract
+    TLKPlayers = await TLKPlayersFactory.connect(owner).deploy([owner.address], owner.address);
+
+    // get the address for the TLKCoinsContract
+    TLKCoinsFactory = await ethers.getContractFactory("TLKCoins");
+    // Deploy the TLKCoinsContract
+    TLKCoins = await TLKCoinsFactory.connect(owner).deploy("The Lost Kingdom - Token", "TLK_TOKEN");
+
+    // Prepare the structs for deployment
+    const adminAddresses = [
+      admins[0].address,
+      admins[1].address,
+      admins[2].address,
+      admins[3].address,
+      admins[4].address,
+    ];
 
     // create the contract
     TLKNFTStakeFactory = await ethers.getContractFactory("TLKNFTStake");
     // Deploy the TLKNFTStake contract
-    TLKNFTStake = await TLKNFTStakeFactory.connect(owner).deploy("https://google.com",TheLostKingdomNFT.address,TheLostKingdomNFT.address);
+    TLKNFTStake = await TLKNFTStakeFactory.connect(owner).deploy(adminAddresses, TLKGenesis.address, TLKPlayers.address, TLKCoins.address);
   });
 
   describe("Minting", function () {
@@ -57,16 +76,16 @@ describe("TLKNFTStake", function () {
       let errorDetected = false;
       const target = signers[0].address;
       // Act
-    //   console.log("Target Address = ", target);
-      let preNFTBalance = await TheLostKingdomNFT.connect(wallet).balanceOf(target);
+      //   console.log("Target Address = ", target);
+      let preNFTBalance = await TLKGenesis.connect(wallet).balanceOf(target);
       preNFTBalance = preNFTBalance.toNumber();
-    //   console.log("Pre Balance = ", preNFTBalance);
-      await TheLostKingdomNFT.connect(wallet).mintItem(target, "https://google.com");
-      let postNFTBalance = await TheLostKingdomNFT.connect(wallet).balanceOf(target);
+      //   console.log("Pre Balance = ", preNFTBalance);
+      await TLKGenesis.connect(wallet).mintItem(target, "https://google.com");
+      let postNFTBalance = await TLKGenesis.connect(wallet).balanceOf(target);
       postNFTBalance = postNFTBalance.toNumber();
-    //   console.log("Post Balance = ", postNFTBalance);
-      if (postNFTBalance != (preNFTBalance + 1) ) {
-          errorDetected = true;
+      //   console.log("Post Balance = ", postNFTBalance);
+      if (postNFTBalance != (preNFTBalance + 1)) {
+        errorDetected = true;
       }
       // Assert
       expect(errorDetected).to.be.eq(false);
@@ -74,25 +93,26 @@ describe("TLKNFTStake", function () {
   });
 
   describe("Staking Genesis NFTs", function () {
-    it("Owner should be able to stake an NFT", async function () {
+    it("Genesis owner should be able to stake the Genesis NFT", async function () {
       // Arrange
       const wallet = signers[0];
-    //   console.log("Wallet Address = ", wallet.address);
+      //   console.log("Wallet Address = ", wallet.address);
       let errorDetected = false;
       // Act
 
       // Approve the transfer
-      let preNFTBalance = await TLKNFTStake.connect(wallet).balanceOf(wallet.address,1);
-    //   console.log("Pre Balance = ", preNFTBalance);
+      let preNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
+      preNFTBalance = preNFTBalance.toNumber();
+      // console.log("Pre Balance = ", preNFTBalance);
 
-      await TheLostKingdomNFT.connect(wallet).approve(TLKNFTStake.address,1);
+      await TLKGenesis.connect(wallet).approve(TLKNFTStake.address, 1);
       await TLKNFTStake.connect(wallet).stakeTLKGenesis(1);
 
-      let postNFTBalance = await TLKNFTStake.connect(wallet).balanceOf(wallet.address,1);
+      let postNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
       postNFTBalance = postNFTBalance.toNumber();
-    //   console.log("Post Balance = ", postNFTBalance);
-      if (postNFTBalance != (preNFTBalance + 1) ) {
-          errorDetected = true;
+      // console.log("Post Balance = ", postNFTBalance);
+      if (postNFTBalance != (preNFTBalance -1)) {
+        errorDetected = true;
       }
       // Assert
       expect(errorDetected).to.be.eq(false);
