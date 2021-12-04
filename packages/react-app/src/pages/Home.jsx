@@ -7,6 +7,7 @@ import TLKTitle from '../assets/pages/hero/the-lost-kingdom.png'
 import TLKIntroText from '../assets/pages/hero/once-upon-a-time.png'
 import LearnMoreBtn from '../assets/pages/hero/learn-more-btn.png'
 import TLKBG from '../assets/pages/hero/hero-bg-image.png'
+import bgTexture from '../assets/pages/mint/bg-texture.png'
 
 const Hero = styled.div`
   background: url(${TLKBG}) center center ;
@@ -14,6 +15,10 @@ const Hero = styled.div`
   height: 100vh;
   display: grid;
   grid-template-rows: 10% 90%;
+`
+
+const BGTexture = styled.img`
+  background: url(${bgTexture});
 `
 
 const MiddleSection = styled.div`
@@ -42,13 +47,18 @@ const LearnMore = styled.img`
   }
 `
 
+const HomeWrap = styled.div`
+  background: url(${bgTexture});
+`
+
 function Home() {
   return (
-    <>
+    <HomeWrap>
       <Global
         styles={css`
           body {
             background: linear-gradient(90deg, rgba(34,63,43,1) 0%, rgba(73,161,132,1) 50%, rgba(34,63,43,1) 100%);
+            position: relative;
           }
         `}
       />
@@ -63,7 +73,7 @@ function Home() {
         </MiddleSection>
       </ Hero>
       <Mint />
-    </>
+    </HomeWrap>
   )
 }
 
