@@ -43,7 +43,7 @@ describe("TLKCoins", function () {
     // Deploy the TLKCoins contract
     TLKCoins = await TLKCoinsFactory.connect(owner).deploy(
       "The Lost Kingdom - Token",
-      "TLK"
+      "TLKT"
     );
   });
 

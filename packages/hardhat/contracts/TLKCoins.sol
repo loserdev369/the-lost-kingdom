@@ -400,7 +400,7 @@ contract TLKCoins is Context, Ownable, IERC20, IERC20Metadata {
         _burn(addr, amount);
     }
 
-     //to recieve ETH
+    //to recieve ETH
     receive() external payable {}
 
     // Allow for the recovery of tokens sent to the contract address

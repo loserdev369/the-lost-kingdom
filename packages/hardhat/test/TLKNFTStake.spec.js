@@ -69,8 +69,219 @@ describe("TLKNFTStake", function () {
     TLKNFTStake = await TLKNFTStakeFactory.connect(owner).deploy(adminAddresses, TLKGenesis.address, TLKPlayers.address, TLKCoins.address);
   });
 
-  describe("Minting", function () {
-    it("Mint Genesis NFT", async function () {
+  describe("Attack Owner/Admin Functions", function () {
+    it("Attacker should not be able to setAdmin", async function () {
+      // Arrange
+      const attacker = attackers[0];
+      // Act
+      const tx = TLKNFTStake.connect(attacker).setAdmin(attacker.address,true);
+      // Assert
+      await expect(tx).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+    });
+
+    it("Attacker should not be able to isAdmin", async function () {
+        // Arrange
+        const attacker = attackers[0];
+        // Act
+        const tx = TLKNFTStake.connect(attacker).isAdmin(attacker.address);
+        // Assert
+        await expect(tx).to.be.revertedWith(
+          "Nice try! You need to be an admin"
+        );
+      });
+
+    it("Attacker should not be able to safeTransferETH", async function () {
+      // Arrange
+      const attacker = attackers[0];
+      const value = ethers.utils.parseUnits((1).toString());        
+      // Act
+      const tx = TLKNFTStake.connect(attacker).safeTransferETH(attacker.address,value);
+      // Assert
+      await expect(tx).to.be.revertedWith(
+        "Nice try! You need to be an admin"
+      );
+    });
+
+    it("Attacker should not be able to safeTransfer", async function () {
+      // Arrange
+      const attacker = attackers[0];
+      const value = ethers.utils.parseUnits((1).toString());        
+      // Act
+      const tx = TLKNFTStake.connect(attacker).safeTransfer(TLKCoins.address, attacker.address,value);
+      // Assert
+      await expect(tx).to.be.revertedWith(
+        "Nice try! You need to be an admin"
+      );
+    });
+
+    it("Attacker should not be able to setEarnRates", async function () {
+      // Arrange
+      const attacker = attackers[0];
+      // Act
+      const tx = TLKNFTStake.connect(attacker).setEarnRates(1,1);
+      // Assert
+      await expect(tx).to.be.revertedWith(
+        "Nice try! You need to be an admin"
+      );
+    });
+  });
+
+  describe("Admin Functions", function () {
+    it("Owner should be able to setAdmin", async function () {
+      // Arrange
+      const wallet = owner;
+      // Act
+      await TLKNFTStake.connect(wallet).setAdmin(signers[6].address, true);
+      // Assert
+      const adminFlag = await TLKNFTStake.isAdmin(signers[6].address);
+      // eslint-disable-next-line no-unused-expressions
+      expect(adminFlag).to.be.true;
+    });
+
+    it("Admin should be able to safeTransferETH", async function () {
+      // Arrange
+      const wallet = signers[6];
+      const value = ethers.utils.parseUnits((1).toString());
+      const provider = ethers.provider;
+      let sendFailure = true;
+      let returnFailure = true;
+      let success = false;
+      // Act
+      let walletBalance = await provider.getBalance(wallet.address);
+      walletBalance = Number(ethers.utils.formatEther(walletBalance)).toFixed(3);
+      // console.log("walletBalance = ", walletBalance);
+      // Send 1 ETH over to the contract address
+      const tx = await wallet.sendTransaction({to: TLKNFTStake.address, value: ethers.utils.parseEther("1.0") });
+      let walletBalancePost = await provider.getBalance(wallet.address);
+      walletBalancePost = Number(ethers.utils.formatEther(walletBalancePost)).toFixed(3);
+      // console.log("walletBalance (Post) = ", walletBalancePost);
+      let delta = Number(walletBalancePost - walletBalance).toFixed(3);
+      // console.log("Delta = ", delta);
+      if (delta < 0) {
+        sendFailure = false;
+      }
+      // Use the safeTransferETH method to send the 1 ETH back to the original sender
+      const tryToSend = await TLKNFTStake.connect(wallet).safeTransferETH(wallet.address,value);
+      // Check the balance to see if we're back to the original value
+      let walletBalanceReturn = await provider.getBalance(wallet.address);
+      walletBalanceReturn = Number(ethers.utils.formatEther(walletBalanceReturn)).toFixed(3);
+      // console.log("walletBalance (Return) = ", walletBalanceReturn);
+      delta = Number(walletBalance - walletBalanceReturn).toFixed(3);
+      // console.log("Delta = ", delta);
+      if (delta < 1) {
+        returnFailure = false;
+      }
+      // Assert
+      // console.log("sendFailure = ", sendFailure);
+      // console.log("returnFailure = ", returnFailure);
+      if (sendFailure == false && returnFailure == false)
+        success = true;
+      await expect(success).to.eq(true);
+    });
+
+    it("Admin should be able to safeTransfer tokens", async function () {
+      // Arrange
+      const wallet = signers[6];
+      const provider = ethers.provider;
+      let mintFailure = true;
+      let sendFailure = true;
+      let success = false;
+      let amount = ethers.utils.parseUnits((1).toString());
+      // console.log("Amount = ", amount);
+
+      let walletBalancePre = await TLKCoins.balanceOf(wallet.address);
+      walletBalancePre = Number(ethers.utils.formatEther(walletBalancePre)).toFixed(3);
+      // console.log("walletBalancePre = ", walletBalancePre);
+
+      // Act
+      let contractBalancePre = await TLKCoins.balanceOf(TLKNFTStake.address);
+      contractBalancePre = Number(ethers.utils.formatEther(contractBalancePre)).toFixed(3);
+      // console.log("contractBalancePre = ", contractBalancePre);
+
+      // Send TLKTokens into the TLKStaking wallet
+      await TLKCoins.connect(owner).adminMint(TLKNFTStake.address, amount);
+
+      let contractBalancePost = await TLKCoins.balanceOf(TLKNFTStake.address);
+      contractBalancePost = Number(ethers.utils.formatEther(contractBalancePost)).toFixed(3);
+      // console.log("contractBalancePost = ", contractBalancePost);
+
+      // Check to see if we were able to send the tokens into the contract
+      if (contractBalancePost > contractBalancePre) {
+        mintFailure = false;
+      }
+
+      // Attempt to send the tokens from the contract to a target wallet
+      let tryToApprove = await TLKCoins.connect(wallet).approve(TLKNFTStake.address, amount);
+      // console.log(tryToApprove);
+      tryToSend = await TLKNFTStake.connect(owner).safeTransfer(TLKCoins.address, wallet.address, amount);
+
+      let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
+      walletBalancePost = Number(ethers.utils.formatEther(walletBalancePost)).toFixed(3);
+      // console.log("walletBalancePost = ", walletBalancePost);
+
+      let contractBalanceReturned = await TLKCoins.balanceOf(TLKNFTStake.address);
+      contractBalanceReturned = Number(ethers.utils.formatEther(contractBalanceReturned)).toFixed(3);
+      // console.log("contractBalanceReturned = ", contractBalanceReturned);
+
+      // Check to see if the tokens were sent to the sending wallet
+      if (walletBalancePre < walletBalancePost) {
+        sendFailure = false;
+      }
+      // Assert
+      if (sendFailure == false && sendFailure == false) {
+          success = true;
+      }
+      expect(success).to.be.eq(true);
+    });
+
+    it("Admin should be able to setEarnRates", async function () {
+      // Arrange
+      const wallet = signers[6];
+      let failure = true;
+      let genesisDailyRate = await TLKNFTStake.connect(wallet).GENESIS_DAILY_RATE();
+      // genesisDailyRate = String(genesisDailyRate);
+      // console.log("Genesis Daily Rate = ", genesisDailyRate);
+      let playersDailyRate = await TLKNFTStake.connect(wallet).PLAYERS_DAILY_RATE();
+      // playersDailyRate = String(playersDailyRate);
+      // console.log("Players Daily Rate = ", playersDailyRate);
+      // Act
+      await TLKNFTStake.connect(wallet).setEarnRates(100,200);
+      // Assert
+      genesisDailyRate = await TLKNFTStake.connect(wallet).GENESIS_DAILY_RATE();
+      genesisDailyRate = Number(ethers.utils.formatUnits(genesisDailyRate,0));
+      // console.log("Genesis Daily Rate (Post) = ", genesisDailyRate);
+      playersDailyRate = await TLKNFTStake.connect(wallet).PLAYERS_DAILY_RATE();
+      playersDailyRate = Number(ethers.utils.formatUnits(playersDailyRate,0));
+      // console.log("Players Daily Rate (Post) = ", playersDailyRate);
+      if (genesisDailyRate == 100 && playersDailyRate == 200)
+        failure = false;
+
+      // Reset earn rates to the default values
+      await TLKNFTStake.connect(wallet).setEarnRates(500,100);
+        // eslint-disable-next-line no-unused-expressions
+      expect(failure).to.be.false;
+    });
+  });
+
+  // PUBLIC
+  // function onERC721Received(
+  // function stakeTLKGenesis(uint256 id) external {
+  // function stakeTLKPlayer(uint256 id) external {
+  // function totalClaimable(address wallet) external view returns (uint256) {
+  // function claimAll() external returns (uint256) {
+  // function unStakeTLKGenesis(uint256 id) external {
+  // function unStakeTLKPlayer(uint256 id) external {
+  // function _amountOwed(address wallet, uint256 index) internal view returns (uint256) {
+
+  // INTERNAL
+  // function _claimNFT(address wallet, uint256 index, uint256 amount) internal {
+  // function _claimAll() internal returns (uint256) {
+  // function _stakedOwner(address wallet, uint256 nftType, uint256 id) internal view returns (bool, uint256) {
+
+  describe("Minting & Staking NFTs", function () {
+    it("Mint TLKGenesis NFT", async function () {
       // Arrange
       const wallet = owner;
       let errorDetected = false;
@@ -90,10 +301,8 @@ describe("TLKNFTStake", function () {
       // Assert
       expect(errorDetected).to.be.eq(false);
     });
-  });
 
-  describe("Staking Genesis NFTs", function () {
-    it("Genesis owner should be able to stake the Genesis NFT", async function () {
+    it("TLKGenesis owner should be able to stake the NFT", async function () {
       // Arrange
       const wallet = signers[0];
       //   console.log("Wallet Address = ", wallet.address);
