@@ -12,9 +12,16 @@ const SectionWrapper = styled.div`
   align-items: center;
   justify-content: center;
   height: 100vh;
+  @media (max-width: 1400px) {
+    background-size: cointain;
+  }
 `
 
-const ImgWrapper = styled.img``
+const ImgWrapper = styled.img`
+  @media (max-width: 1400px) {
+    width: 30vw;
+  }
+`
 
 export default function Mint() {
   return (
