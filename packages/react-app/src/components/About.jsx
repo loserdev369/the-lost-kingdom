@@ -66,7 +66,7 @@ export default function About() {
     const t1 = gsap.timeline({
       scrollTrigger: {
         trigger: wrapRef.current,
-        // markers: true,
+        markers: false,
         toggleActions: 'play none none none',
         start: 'top center',
         ease: 'power1.inOut',
