@@ -17,6 +17,9 @@ const Hero = styled.div`
   height: 100vh;
   display: grid;
   grid-template-rows: 10% 90%;
+  @media screen and (max-width: 768px) {
+    height: 600px
+  }
 `
 
 const MiddleSection = styled.div`
@@ -30,12 +33,18 @@ const Title = styled.img`
   @media screen and (max-width: 1440px) {
     width: 63vw;
   }
+  @media screen and (max-width: 768px) {
+    width: 80vw;
+  }
 
 `
 const IntroText = styled.img`
   margin: 0;
   @media screen and (max-width: 1440px) {
     width: 60vw;
+  }
+  @media screen and (max-width: 768px) {
+    width: 80vw;
   }
 `
 const LearnMore = styled.img`
