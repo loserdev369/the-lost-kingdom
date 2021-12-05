@@ -18,19 +18,33 @@ import loserDevTitle from '../assets/pages/team/loser-dev-title.png'
 import loserRootTitle from '../assets/pages/team/loser-root-title.png'
 import waldoTitle from '../assets/pages/team/waldo-title.png'
 
-const Avatar = styled.img``
+const Avatar = styled.img`
+  @media (max-width: 768px) {
+    width: 50vw;
+  }
+`
+
 const Heading = styled.img`
   margin-top: 6vw;
   @media (max-width: 768px) {
-    width: 60vw;
+    width: 40vw;
   }
 `
-const Title = styled.img`
-  margin-top: 2vw;
-`
+
 const Name = styled.img`
   margin-top: 2vw;
+  @media (max-width: 768px) {
+    width: 30vw;
+  }
 `
+
+const Title = styled.img`
+  margin-top: 2vw;
+  @media (max-width: 768px) {
+    width: 40vw;
+  }
+`
+
 const MemberWrap = styled.div`
   margin-top: 6vw;
   display: flex;
@@ -40,11 +54,13 @@ const MemberWrap = styled.div`
     flex-direction: column;
   }
 `
+
 const Member = styled.div`
   @media (max-width: 768px) {
     margin-bottom: 6vw;
   }
 `
+
 const SectionWrap = styled.div``
 
 export default function Team() {
