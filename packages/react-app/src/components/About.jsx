@@ -10,18 +10,21 @@ const TLKMap = styled.img`
   margin: 3rem 0;
 `
 
-const Wrap = styled.div``
+const Wrap = styled.div`
+`
 
 const SectionWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-around;
+  margin-bottom: 6vw;
   @media screen and (max-width: 768px) {
     flex-direction: column;
   }
 `
 
 const TextWrap = styled.img`
+  width: 44vw;
   @media screen and (max-width: 768px) {
     width: 80vw; 
   }
@@ -38,7 +41,7 @@ const TitleWrap = styled.div`
   text-align: center;
 `
 const AboutPosterWrap = styled.img`
-  width: 47vw;
+  width: 40vw;
   @media screen and (max-width: 1440px) {
     width: 60vw; 
   }
