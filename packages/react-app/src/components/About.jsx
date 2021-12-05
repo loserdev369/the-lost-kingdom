@@ -7,7 +7,7 @@ import tlkMap from '../assets/pages/about/TLK-world-map.png'
 
 const TLKMap = styled.img`
   width: 100%;
-  margin-bottom: 3rem;
+  margin: 3rem 0;
 `
 
 const Wrap = styled.div``
