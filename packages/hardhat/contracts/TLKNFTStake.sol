@@ -186,7 +186,7 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
         uint256 owed = 0;
         // loop through the staked NFTs
         for(uint256 i = 0; i < staked[wallet].length; i++) {
-            console.log("NFT #", i);
+            // TODO: console.log("NFT #", i);
             owed = _amountOwed(wallet, i);
             // add this amount to the running total
             totalOwed += owed;
@@ -197,6 +197,7 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
     function claimAll() external returns (uint256) {
         uint256 totalClaimed = 0;
         totalClaimed = _claimAll();
+
         return totalClaimed;
     }
 
@@ -264,10 +265,11 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
 
         owed = ((block.timestamp - staked[wallet][index].lastClaimed) * CALC_RATE) / 1 days;
 
+        // TODO: remove these statements
         console.log("Owed Calculations");
         console.log("-----------------");
         console.log("Block Timestamp: %d", block.timestamp);
-        console.log("Wallet: %d", wallet);
+        console.log("Wallet: %s", wallet);
         console.log("NFT Type: %d", staked[wallet][index].tokenType);
         console.log("NFT ID: %d", staked[wallet][index].tokenId);
         console.log("Stake Time: %d", staked[wallet][index].stakeTime);
@@ -297,10 +299,14 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
         // loop through the staked NFTs
         for(uint256 i = 0; i < staked[_msgSender()].length; i++) {
             owed = _amountOwed(_msgSender(), i);
+            // TODO: Remove these console logs
+            console.log("Owed: %s", owed);
             _claimNFT(_msgSender(),i,owed);
             // add this amount to the running total
             totalClaimed += owed;
         }
+
+        console.log("totalClaimed: %s", totalClaimed);
 
         // Mint the TLK Tokens and send to the claiming wallet
         _TLKTokens.adminMint(_msgSender(), totalClaimed);

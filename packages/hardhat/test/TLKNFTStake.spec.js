@@ -67,6 +67,9 @@ describe("TLKNFTStake", function () {
     TLKNFTStakeFactory = await ethers.getContractFactory("TLKNFTStake");
     // Deploy the TLKNFTStake contract
     TLKNFTStake = await TLKNFTStakeFactory.connect(owner).deploy(adminAddresses, TLKGenesis.address, TLKPlayers.address, TLKCoins.address);
+
+    // Make sure the TLK Staking contract is an Admin of the TLK Coins contract
+    await TLKCoins.connect(owner).setAdmin(TLKNFTStake.address, true);
   });
 
   describe("Attack Owner/Admin Functions", function () {
@@ -352,8 +355,107 @@ describe("TLKNFTStake", function () {
       expect(errorDetected).to.be.eq(false);
     });
 
+    it("Wallet with staked NFTs should be able to call totalClaimable", async function () {
+      // Arrange
+      const wallet = owner;
+      // Act
+      let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
+      claimableAmount = Number(claimableAmount) / 100000;
+      // console.log("Claimable Amount = ", claimableAmount);
+      // Assert
+      // only 2 seconds have passed since the NFTs were staked so we should have 0.00011 tokens claimable across 1 Genesis and 1 Player NFT.
+      expect(claimableAmount).to.be.least(0.00011);
+    });
+
+    it("Wallet with staked NFTs should be able to call claimAll", async function () {
+      // Arrange
+      const wallet = owner;
+      // get the token balance before the test
+      let walletBalancePre = await TLKCoins.balanceOf(wallet.address);
+      walletBalancePre = Number(Number(ethers.utils.formatUnits(walletBalancePre,5)).toFixed(5));
+      console.log("walletBalancePre = ", walletBalancePre);
+      let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
+      claimableAmount = Number(Number(ethers.utils.formatUnits(claimableAmount,5)).toFixed(5));
+      console.log("Claimable Amount = ", claimableAmount);
+      // Act
+      await TLKNFTStake.connect(wallet).claimAll();
+      // Assert
+      // get the token balance after the test
+      let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
+      walletBalancePost = Number(Number(ethers.utils.formatUnits(walletBalancePost,5)).toFixed(5));
+      console.log("walletBalancePost = ", walletBalancePost);
+      expect(walletBalancePost).to.be.least(claimableAmount);
+    });
+
+    it("Wallet with staked NFTs should be able to make additional calls to claimAll", async function () {
+      // Arrange
+      const wallet = owner;
+      // get the token balance before the test
+      let walletBalancePre = await TLKCoins.balanceOf(wallet.address);
+      walletBalancePre = Number(Number(ethers.utils.formatUnits(walletBalancePre,5)).toFixed(5));
+      console.log("walletBalancePre = ", walletBalancePre);
+      let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
+      claimableAmount = Number(Number(ethers.utils.formatUnits(claimableAmount,5)).toFixed(5));
+      console.log("Claimable Amount = ", claimableAmount);
+      // Act
+      await TLKNFTStake.connect(wallet).claimAll();
+      // Assert
+      // get the token balance after the test
+      let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
+      walletBalancePost = Number(Number(ethers.utils.formatUnits(walletBalancePost,5)).toFixed(5));
+      console.log("walletBalancePost = ", walletBalancePost);
+      expect(walletBalancePost).to.be.least(claimableAmount);
+    });
+
+
+    // it("Owner should be able to safeTransfer tokens", async function () {
+    //   // Arrange
+    //   const wallet = signers[6];
+    //   const provider = ethers.provider;
+    //   let sendFailure = true;
+    //   let returnFailure = true;
+    //   let success = false;
+    //   let amount = ethers.utils.parseUnits((1).toString());
+    //   // console.log("Amount = ", amount);
+    //   // Act
+    //   let contractBalance = await TLKCoins.balanceOf(TLKCoins.address);
+    //   contractBalance = Number(ethers.utils.formatEther(contractBalance)).toFixed(3);
+    //   // console.log("contractBalance = ", contractBalance);
+    //   let tryToApprove = await TLKCoins.connect(wallet).approve(TLKCoins.address, amount);
+    //   // console.log(tryToApprove);
+    //   let tryToSend = await TLKCoins.connect(wallet).transfer(TLKCoins.address, amount);
+    //   let contractBalancePost = await TLKCoins.balanceOf(TLKCoins.address);
+    //   contractBalancePost = Number(ethers.utils.formatEther(contractBalancePost)).toFixed(3);
+    //   // console.log("contractBalancePost = ", contractBalancePost);
+    //   // Check to see if we were able to send the tokens into the contract
+    //   if (contractBalancePost > contractBalance) {
+    //     sendFailure = false;
+    //   }
+    //   let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
+    //   walletBalancePost = Number(ethers.utils.formatEther(walletBalancePost)).toFixed(3);
+    //   // console.log("walletBalancePost(Post) = ", walletBalancePost);
+    //   // Attempt to return the tokens to the original wallet
+    //   tryToApprove = await TLKCoins.connect(owner).approve(TLKCoins.address, amount);
+    //   // console.log(tryToApprove);
+    //   tryToSend = await TLKCoins.connect(owner).safeTransfer(TLKCoins.address, wallet.address, amount);
+    //   let walletBalanceReturned = await TLKCoins.balanceOf(wallet.address);
+    //   walletBalanceReturned = Number(ethers.utils.formatEther(walletBalanceReturned)).toFixed(3);
+    //   // console.log("walletBalanceReturned = ", walletBalanceReturned);
+    //   let contractBalanceReturned = await TLKCoins.balanceOf(TLKCoins.address);
+    //   contractBalanceReturned = Number(ethers.utils.formatEther(contractBalanceReturned)).toFixed(3);
+    //   // console.log("contractBalanceReturned = ", contractBalanceReturned);
+    //   // Check to see if the tokens were returned to the sending wallet
+    //   if (walletBalancePre == walletBalanceReturned) {
+    //     returnFailure = false;
+    //   }
+    //   // Assert
+    //   if (sendFailure == false && returnFailure == false) {
+    //       success = true;
+    //   }
+    //   expect(success).to.be.eq(true);
+    // });
+
   // PUBLIC
-  // function totalClaimable(address wallet) external view returns (uint256) {
   // function claimAll() external returns (uint256) {
   // function unStakeTLKGenesis(uint256 id) external {
   // function unStakeTLKPlayer(uint256 id) external {
@@ -363,15 +465,8 @@ describe("TLKNFTStake", function () {
   // function _claimNFT(address wallet, uint256 index, uint256 amount) internal {
   // function _claimAll() internal returns (uint256) {
   // function _stakedOwner(address wallet, uint256 nftType, uint256 id) internal view returns (bool, uint256) {
-    it("Wallet with staked NFTs should be able to call totalClaimable", async function () {
-      // Arrange
-      const wallet = owner;
-      // Act
-      let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
-      console.log("Claimable Amount = ", claimableAmount);
-      // Assert
-      // expect(errorDetected).to.be.eq(false);
-    });
+
+
 
   });
 });
