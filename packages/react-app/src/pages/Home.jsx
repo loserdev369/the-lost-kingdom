@@ -10,6 +10,8 @@ import TLKBG from '../assets/pages/hero/hero-bg-image.png'
 import bgTexture from '../assets/pages/mint/bg-texture.png'
 import About from '../components/About.jsx'
 import Roadmap from '../components/Roadmap.jsx'
+import Team from '../components/Team.jsx'
+import FAQ from '../components/Faq.jsx'
 
 const Hero = styled.div`
   background: url(${TLKBG}) center center ;
@@ -88,6 +90,8 @@ function Home() {
       <Mint />
       <About />
       <Roadmap />
+      <Team />
+      <FAQ />
     </HomeWrap>
   )
 }
