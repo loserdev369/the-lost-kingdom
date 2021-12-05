@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import styled from '@emotion/styled'
 import mintText from '../assets/pages/mint/mint-coming-soon.png'
 import mintAvatars from '../assets/pages/mint/mint-coming-soon-sillouete.png'
+import { gsap } from 'gsap'
 
 const SectionWrapper = styled.div`
   border-top: solid 7px #46604F;
@@ -28,9 +29,20 @@ const ImgWrapper = styled.img`
 `
 
 export default function Mint() {
+
+  const bgImageRef = useRef();
+  const mintTextRef = useRef();
+
+  // add scrollTrigger to active animations on scroll
+
+  useEffect(() => {
+    gsap.from(bgImageRef.current, { backgroundSize: '0%', x: -1000 })
+    gsap.from(mintTextRef.current, { y: 500 })
+  }, [])
+
   return (
-    <SectionWrapper>
-      <ImgWrapper src={mintText} />
+    <SectionWrapper ref={bgImageRef}>
+      <ImgWrapper ref={mintTextRef} src={mintText} />
     </SectionWrapper>
   )
 }

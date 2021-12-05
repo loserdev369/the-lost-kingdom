@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import NavBar from "../components/NavBar.jsx"
 import Mint from "../components/Mint.jsx"
 import styled from '@emotion/styled'
@@ -13,7 +13,7 @@ import Roadmap from '../components/Roadmap.jsx'
 import Team from '../components/Team.jsx'
 import FAQ from '../components/Faq.jsx'
 import Footer from '../components/Footer.jsx'
-import 'animate.css/animate.min.css'
+import { gsap } from 'gsap'
 
 const Hero = styled.div`
   background: url(${TLKBG}) center center ;
@@ -51,6 +51,7 @@ const IntroText = styled.img`
     width: 80vw;
   }
 `
+
 const LearnMore = styled.img`
   cursor: pointer;
   margin: 0;
@@ -66,6 +67,20 @@ const HomeWrap = styled.div`
 `
 
 function Home() {
+  const titleRef = useRef();
+  const introTextRef = useRef();
+  const learnMoreRef = useRef();
+
+  useEffect(() => {
+    const refs = [
+      titleRef.current,
+      introTextRef.current,
+      learnMoreRef.current
+    ]
+    gsap.from(refs, { stagger: 0.3, x: -300, opacity: 0, delay: 1.4 })
+  }, [])
+
+
   return (
     <HomeWrap>
       <Global
@@ -83,12 +98,12 @@ function Home() {
         <NavBar />
         <MiddleSection>
           <div>
-            <Title src={TLKTitle} />
-            <IntroText src={TLKIntroText} />
-            <LearnMore src={LearnMoreBtn} />
+            <Title ref={titleRef} src={TLKTitle} />
+            <IntroText ref={introTextRef} src={TLKIntroText} />
+            <LearnMore ref={learnMoreRef} src={LearnMoreBtn} />
           </div>
         </MiddleSection>
-      </ Hero>
+      </Hero>
       <Mint />
       <About />
       <Roadmap />
