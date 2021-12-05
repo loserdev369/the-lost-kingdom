@@ -36,8 +36,16 @@ export default function Mint() {
   // add scrollTrigger to active animations on scroll
 
   useEffect(() => {
-    gsap.from(bgImageRef.current, { backgroundSize: '0%', x: -1000 })
-    gsap.from(mintTextRef.current, { y: 500 })
+    const t1 = gsap.timeline({
+      scrollTrigger: {
+        trigger: bgImageRef.current,
+        markers: false,
+        toggleActions: 'play none none none',
+        start: '20% center',
+        ease: 'power1.inOut',
+      }
+    })
+    t1.from(mintTextRef.current, { y: 500, opacity: 0 })
   }, [])
 
   return (

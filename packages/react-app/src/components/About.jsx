@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import styled from '@emotion/styled'
 import aboutText from '../assets/pages/about/about-text.png'
 import titleText from '../assets/pages/about/about-kingdoms.png'
 import aboutPoster from '../assets/pages/about/TLK-Poster.png'
 import tlkMap from '../assets/pages/about/TLK-world-map.png'
+import { gsap } from 'gsap'
 
 const TLKMap = styled.img`
   width: 100%;
@@ -53,14 +54,34 @@ const AboutPosterWrap = styled.img`
 
 
 export default function About() {
+  const wrapRef = useRef();
+  const titleRef = useRef();
+  const aboutTextRef = useRef();
+  const posterRef = useRef();
+
+  // add scrollTrigger to active animations on scroll
+
+  useEffect(() => {
+    const refs = [titleRef.current, aboutTextRef.current, posterRef.current]
+    const t1 = gsap.timeline({
+      scrollTrigger: {
+        trigger: wrapRef.current,
+        // markers: true,
+        toggleActions: 'play none none none',
+        start: 'top center',
+        ease: 'power1.inOut',
+      }
+    })
+    t1.from(refs, { x: 300, opacity: 0, stagger: 0.3 })
+  }, [])
   return (
-    <Wrap>
+    <Wrap ref={wrapRef}>
       <TitleWrap>
-        <TitleText src={titleText} />
+        <TitleText ref={titleRef} src={titleText} />
       </TitleWrap>
       <SectionWrap>
-        <TextWrap src={aboutText} />
-        <AboutPosterWrap src={aboutPoster} />
+        <TextWrap ref={aboutTextRef} src={aboutText} />
+        <AboutPosterWrap ref={posterRef} src={aboutPoster} />
       </SectionWrap>
       <TLKMap src={tlkMap} />
     </Wrap>
