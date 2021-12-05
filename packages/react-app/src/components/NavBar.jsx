@@ -40,6 +40,11 @@ const NavItem = styled.img`
   @media screen and (max-width: 1440px) {
     max-width: 20%;
   }
+  ${props => props.connect && css`
+    @media screen and (max-width: 768px) {
+      max-width: 30%;
+    }
+  `}
   ${props => props.left && css`
     margin-left: 2rem;
   `}
@@ -60,7 +65,7 @@ function NavBar() {
         <NavItem left src={twitter} />
         <NavItem left src={discord} />
         <NavItem left src={music} />
-        <NavItem left src={connect} />
+        <NavItem connect left src={connect} />
       </NavBox>
     </NavWrap>
   )
