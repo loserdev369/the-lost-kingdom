@@ -1,17 +1,19 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
-// import * as Sentry from "@sentry/react";
-// import { Integrations } from "@sentry/tracing";
-import "./index.css";
-import Plausible from 'plausible-tracker'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import Home from './pages/Home.jsx'
+import { ChakraProvider } from "@chakra-ui/react"
 
-const { enableAutoPageviews } = Plausible({
-  domain: 'mint.desperateapewives.com'
-})
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 
-enableAutoPageviews();
+gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
 ReactDOM.render(
-  <App />
-  , document.getElementById("root"));
+  <React.StrictMode>
+    <ChakraProvider>
+      <Home />
+    </ChakraProvider>
+  </React.StrictMode>,
+  document.getElementById("root")
+)
