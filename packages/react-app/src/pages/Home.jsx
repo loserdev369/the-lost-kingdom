@@ -12,6 +12,8 @@ import About from '../components/About.jsx'
 import Roadmap from '../components/Roadmap.jsx'
 import Team from '../components/Team.jsx'
 import FAQ from '../components/Faq.jsx'
+import Footer from '../components/Footer.jsx'
+import 'animate.css/animate.min.css'
 
 const Hero = styled.div`
   background: url(${TLKBG}) center center ;
@@ -92,6 +94,7 @@ function Home() {
       <Roadmap />
       <Team />
       <FAQ />
+      <Footer />
     </HomeWrap>
   )
 }
