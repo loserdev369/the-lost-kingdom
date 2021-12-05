@@ -16,21 +16,22 @@ const SectionWrap = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-around;
-  @media screen and (max-width: 1440px) {
+  @media screen and (max-width: 768px) {
     flex-direction: column;
   }
 `
 
 const TextWrap = styled.img`
-  @media screen and (max-width: 1440px) {
-    width: 55vw; 
+  @media screen and (max-width: 768px) {
+    width: 80vw; 
   }
 
 `
 const TitleText = styled.img`
-  margin: 6rem auto;
-  @media screen and (max-width: 1400px) {
-    width: 60vw;
+  margin: 6vw auto;
+  @media screen and (max-width: 768px) {
+    width: 80vw;
+    margin-bottom: 0; 
   }
 `
 const TitleWrap = styled.div`
@@ -39,7 +40,10 @@ const TitleWrap = styled.div`
 const AboutPosterWrap = styled.img`
   width: 47vw;
   @media screen and (max-width: 1440px) {
-    width: 67vw; 
+    width: 60vw; 
+  }
+  @media screen and (max-width: 768px) {
+    width: 90vw; 
     order: -1;
   }
 `
