@@ -17,6 +17,8 @@
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "@usedapp/core": "^0.6.3",
-    "framer-motion": "^4"
+    "framer-motion": "^4",
+    "gsap": "npm:@gsap/shockingly",
+    "howler": "^2.2.3"
   }
 }
