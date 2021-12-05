@@ -91,6 +91,7 @@ const Text = styled.img`
   `}
   ${props => props.first && css`
     margin: 0 auto;
+    margin-top: 3vw;
     @media (max-width: 768px) {
       width: 60vw;
     }
