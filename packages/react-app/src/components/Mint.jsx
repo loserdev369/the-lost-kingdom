@@ -16,7 +16,7 @@ const SectionWrapper = styled.div`
     background-size: cointain;
   }
   @media (max-width: 768px) {
-    height: 330px
+    height: 60vw;
   }
 ;
 `
@@ -30,7 +30,6 @@ const ImgWrapper = styled.img`
 export default function Mint() {
   return (
     <SectionWrapper>
-      <bgTexture />
       <ImgWrapper src={mintText} />
     </SectionWrapper>
   )
