@@ -92,7 +92,7 @@ function NavBar() {
 
   useEffect(() => {
     // edit volume so that its not to loud while playing
-    const themeMusic = new Howl({ src: spirtOfGresynu, loop: true, html5: true })
+    const themeMusic = new Howl({ src: spirtOfGresynu, autoplay: true, loop: true, html5: true })
     setCurrentSound(themeMusic)
     const soundId = themeMusic.play()
     setSoundId(soundId)
