@@ -266,20 +266,20 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
         owed = ((block.timestamp - staked[wallet][index].lastClaimed) * CALC_RATE) / 1 days;
 
         // TODO: remove these statements
-        console.log("Owed Calculations");
-        console.log("-----------------");
-        console.log("Block Timestamp: %d", block.timestamp);
-        console.log("Wallet: %s", wallet);
-        console.log("NFT Type: %d", staked[wallet][index].tokenType);
-        console.log("NFT ID: %d", staked[wallet][index].tokenId);
-        console.log("Stake Time: %d", staked[wallet][index].stakeTime);
-        console.log("lastClaimed: %d", staked[wallet][index].lastClaimed);
-        console.log("totalClaimed: %d", staked[wallet][index].totalClaimed);
-        console.log("-----------------");
-        console.log("CALC_RATE: %d", CALC_RATE);
-        console.log("1 days: %d", 1 days);
-        console.log("Total Owed: %d", owed);
-        console.log("-----------------");
+        // console.log("Owed Calculations");
+        // console.log("-----------------");
+        // console.log("Block Timestamp: %d", block.timestamp);
+        // console.log("Wallet: %s", wallet);
+        // console.log("NFT Type: %d", staked[wallet][index].tokenType);
+        // console.log("NFT ID: %d", staked[wallet][index].tokenId);
+        // console.log("Stake Time: %d", staked[wallet][index].stakeTime);
+        // console.log("lastClaimed: %d", staked[wallet][index].lastClaimed);
+        // console.log("totalClaimed: %d", staked[wallet][index].totalClaimed);
+        // console.log("-----------------");
+        // console.log("CALC_RATE: %d", CALC_RATE);
+        // console.log("1 days: %d", 1 days);
+        // console.log("Total Owed: %d", owed);
+        // console.log("-----------------");
 
         // owed = (lastClaimTimestamp - stake.value) * GENESIS_DAILY_RATE / 1 days; // stop earning additional coins if it's all claimed
         return owed;
@@ -300,13 +300,11 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
         for(uint256 i = 0; i < staked[_msgSender()].length; i++) {
             owed = _amountOwed(_msgSender(), i);
             // TODO: Remove these console logs
-            console.log("Owed: %s", owed);
+            // console.log("Owed: %s", owed);
             _claimNFT(_msgSender(),i,owed);
             // add this amount to the running total
             totalClaimed += owed;
         }
-
-        console.log("totalClaimed: %s", totalClaimed);
 
         // Mint the TLK Tokens and send to the claiming wallet
         _TLKTokens.adminMint(_msgSender(), totalClaimed);

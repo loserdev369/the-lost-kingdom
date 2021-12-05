@@ -317,16 +317,16 @@ describe("TLKNFTStake", function () {
       //   console.log("Wallet Address = ", wallet.address);
       let errorDetected = false;
       // Act
-      // Approve the transfer
       let preNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
       preNFTBalance = preNFTBalance.toNumber();
       // console.log("Pre Balance = ", preNFTBalance);
+      // Approve the transfer
       await TLKGenesis.connect(wallet).approve(TLKNFTStake.address, 1);
       await TLKNFTStake.connect(wallet).stakeTLKGenesis(1);
       let postNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
       postNFTBalance = postNFTBalance.toNumber();
       // console.log("Post Balance = ", postNFTBalance);
-      if (postNFTBalance != (preNFTBalance -1)) {
+      if (postNFTBalance != (preNFTBalance - 1)) {
         errorDetected = true;
       }
       // Assert
@@ -339,16 +339,16 @@ describe("TLKNFTStake", function () {
       //   console.log("Wallet Address = ", wallet.address);
       let errorDetected = false;
       // Act
-      // Approve the transfer
       let preNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
       preNFTBalance = preNFTBalance.toNumber();
       // console.log("Pre Balance = ", preNFTBalance);
+      // Approve the transfer
       await TLKPlayers.connect(wallet).approve(TLKNFTStake.address, 88);
       await TLKNFTStake.connect(wallet).stakeTLKPlayer(88);
       let postNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
       postNFTBalance = postNFTBalance.toNumber();
       // console.log("Post Balance = ", postNFTBalance);
-      if (postNFTBalance != (preNFTBalance -1)) {
+      if (postNFTBalance != (preNFTBalance - 1)) {
         errorDetected = true;
       }
       // Assert
@@ -373,100 +373,92 @@ describe("TLKNFTStake", function () {
       // get the token balance before the test
       let walletBalancePre = await TLKCoins.balanceOf(wallet.address);
       walletBalancePre = Number(Number(ethers.utils.formatUnits(walletBalancePre,5)).toFixed(5));
-      console.log("walletBalancePre = ", walletBalancePre);
+      // console.log("walletBalancePre = ", walletBalancePre);
       let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
       claimableAmount = Number(Number(ethers.utils.formatUnits(claimableAmount,5)).toFixed(5));
-      console.log("Claimable Amount = ", claimableAmount);
+      // console.log("Claimable Amount = ", claimableAmount);
       // Act
       await TLKNFTStake.connect(wallet).claimAll();
       // Assert
       // get the token balance after the test
       let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
       walletBalancePost = Number(Number(ethers.utils.formatUnits(walletBalancePost,5)).toFixed(5));
-      console.log("walletBalancePost = ", walletBalancePost);
+      // console.log("walletBalancePost = ", walletBalancePost);
       expect(walletBalancePost).to.be.least(claimableAmount);
     });
 
-    it("Wallet with staked NFTs should be able to make additional calls to claimAll", async function () {
+    it("Wallet with staked NFTs should be able to make additional calls to claimAll (10)", async function () {
       // Arrange
       const wallet = owner;
+      const numCalls = 10;
       // get the token balance before the test
       let walletBalancePre = await TLKCoins.balanceOf(wallet.address);
       walletBalancePre = Number(Number(ethers.utils.formatUnits(walletBalancePre,5)).toFixed(5));
-      console.log("walletBalancePre = ", walletBalancePre);
-      let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
-      claimableAmount = Number(Number(ethers.utils.formatUnits(claimableAmount,5)).toFixed(5));
-      console.log("Claimable Amount = ", claimableAmount);
+      // console.log("walletBalancePre = ", walletBalancePre);
+      // let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
+
+      let genesisDailyRate = await TLKNFTStake.connect(wallet).GENESIS_DAILY_RATE();
+      genesisDailyRate = Number(ethers.utils.formatUnits(genesisDailyRate,0));
+      // console.log("Genesis Daily Rate = ", genesisDailyRate);
+      let playersDailyRate = await TLKNFTStake.connect(wallet).PLAYERS_DAILY_RATE();
+      playersDailyRate = Number(ethers.utils.formatUnits(playersDailyRate,0));
+      // console.log("Players Daily Rate = ", playersDailyRate);
+      let claimableAmount = genesisDailyRate + playersDailyRate;
+      claimableAmount = parseInt(claimableAmount / 86400) / 10000;
+      // console.log("Claimable Amount = ", claimableAmount);
       // Act
-      await TLKNFTStake.connect(wallet).claimAll();
+      // Loop a number of times calling claimAll
+      for (let i = 0; i < numCalls; i++) {
+        await TLKNFTStake.connect(wallet).claimAll();
+      }
       // Assert
       // get the token balance after the test
       let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
       walletBalancePost = Number(Number(ethers.utils.formatUnits(walletBalancePost,5)).toFixed(5));
-      console.log("walletBalancePost = ", walletBalancePost);
-      expect(walletBalancePost).to.be.least(claimableAmount);
+      // console.log("walletBalancePost = ", walletBalancePost);
+      let targetValue = walletBalancePre + claimableAmount;
+      // console.log("targetValue = ", targetValue);
+      expect(walletBalancePost).to.be.least(targetValue);
     });
 
+    it("TLKGenesis owner should be able to un-stake the NFT", async function () {
+      // Arrange
+      const wallet = signers[0];
+      // console.log("Wallet Address = ", wallet.address);
+      let errorDetected = false;
+      // Act
+      let preNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
+      preNFTBalance = preNFTBalance.toNumber();
+      // console.log("Pre Balance = ", preNFTBalance);
+      await TLKNFTStake.connect(wallet).unStakeTLKGenesis(1);
+      let postNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
+      postNFTBalance = postNFTBalance.toNumber();
+      // console.log("Post Balance = ", postNFTBalance);
+      if (postNFTBalance != (preNFTBalance + 1)) {
+        errorDetected = true;
+      }
+      // Assert
+      expect(errorDetected).to.be.eq(false);
+    });
 
-    // it("Owner should be able to safeTransfer tokens", async function () {
-    //   // Arrange
-    //   const wallet = signers[6];
-    //   const provider = ethers.provider;
-    //   let sendFailure = true;
-    //   let returnFailure = true;
-    //   let success = false;
-    //   let amount = ethers.utils.parseUnits((1).toString());
-    //   // console.log("Amount = ", amount);
-    //   // Act
-    //   let contractBalance = await TLKCoins.balanceOf(TLKCoins.address);
-    //   contractBalance = Number(ethers.utils.formatEther(contractBalance)).toFixed(3);
-    //   // console.log("contractBalance = ", contractBalance);
-    //   let tryToApprove = await TLKCoins.connect(wallet).approve(TLKCoins.address, amount);
-    //   // console.log(tryToApprove);
-    //   let tryToSend = await TLKCoins.connect(wallet).transfer(TLKCoins.address, amount);
-    //   let contractBalancePost = await TLKCoins.balanceOf(TLKCoins.address);
-    //   contractBalancePost = Number(ethers.utils.formatEther(contractBalancePost)).toFixed(3);
-    //   // console.log("contractBalancePost = ", contractBalancePost);
-    //   // Check to see if we were able to send the tokens into the contract
-    //   if (contractBalancePost > contractBalance) {
-    //     sendFailure = false;
-    //   }
-    //   let walletBalancePost = await TLKCoins.balanceOf(wallet.address);
-    //   walletBalancePost = Number(ethers.utils.formatEther(walletBalancePost)).toFixed(3);
-    //   // console.log("walletBalancePost(Post) = ", walletBalancePost);
-    //   // Attempt to return the tokens to the original wallet
-    //   tryToApprove = await TLKCoins.connect(owner).approve(TLKCoins.address, amount);
-    //   // console.log(tryToApprove);
-    //   tryToSend = await TLKCoins.connect(owner).safeTransfer(TLKCoins.address, wallet.address, amount);
-    //   let walletBalanceReturned = await TLKCoins.balanceOf(wallet.address);
-    //   walletBalanceReturned = Number(ethers.utils.formatEther(walletBalanceReturned)).toFixed(3);
-    //   // console.log("walletBalanceReturned = ", walletBalanceReturned);
-    //   let contractBalanceReturned = await TLKCoins.balanceOf(TLKCoins.address);
-    //   contractBalanceReturned = Number(ethers.utils.formatEther(contractBalanceReturned)).toFixed(3);
-    //   // console.log("contractBalanceReturned = ", contractBalanceReturned);
-    //   // Check to see if the tokens were returned to the sending wallet
-    //   if (walletBalancePre == walletBalanceReturned) {
-    //     returnFailure = false;
-    //   }
-    //   // Assert
-    //   if (sendFailure == false && returnFailure == false) {
-    //       success = true;
-    //   }
-    //   expect(success).to.be.eq(true);
-    // });
-
-  // PUBLIC
-  // function claimAll() external returns (uint256) {
-  // function unStakeTLKGenesis(uint256 id) external {
-  // function unStakeTLKPlayer(uint256 id) external {
-  // function _amountOwed(address wallet, uint256 index) internal view returns (uint256) {
-
-  // INTERNAL
-  // function _claimNFT(address wallet, uint256 index, uint256 amount) internal {
-  // function _claimAll() internal returns (uint256) {
-  // function _stakedOwner(address wallet, uint256 nftType, uint256 id) internal view returns (bool, uint256) {
-
-
-
+    it("TLKPlayer owner should be able to un-stake the NFT", async function () {
+      // Arrange
+      const wallet = owner;
+      // console.log("Wallet Address = ", wallet.address);
+      let errorDetected = false;
+      // Act
+      let preNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
+      preNFTBalance = preNFTBalance.toNumber();
+      // console.log("Pre Balance = ", preNFTBalance);
+      await TLKNFTStake.connect(wallet).unStakeTLKPlayer(88);
+      let postNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
+      postNFTBalance = postNFTBalance.toNumber();
+      // console.log("Post Balance = ", postNFTBalance);
+      if (postNFTBalance != (preNFTBalance + 1)) {
+        errorDetected = true;
+      }
+      // Assert
+      expect(errorDetected).to.be.eq(false);
+    });
   });
 });
