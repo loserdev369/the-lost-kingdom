@@ -186,6 +186,7 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
         uint256 owed = 0;
         // loop through the staked NFTs
         for(uint256 i = 0; i < staked[wallet].length; i++) {
+            console.log("NFT #", i);
             owed = _amountOwed(wallet, i);
             // add this amount to the running total
             totalOwed += owed;
@@ -261,8 +262,23 @@ contract TLKNFTStake is IERC721Receiver, Context, Ownable, Pausable {
         if (staked[wallet][index].tokenType == 2)
             CALC_RATE = PLAYERS_DAILY_RATE;
 
-        owed = (block.timestamp - staked[wallet][index].lastClaimed) * CALC_RATE / 1 days;
-        console.log("Owed = ", owed);
+        owed = ((block.timestamp - staked[wallet][index].lastClaimed) * CALC_RATE) / 1 days;
+
+        console.log("Owed Calculations");
+        console.log("-----------------");
+        console.log("Block Timestamp: %d", block.timestamp);
+        console.log("Wallet: %d", wallet);
+        console.log("NFT Type: %d", staked[wallet][index].tokenType);
+        console.log("NFT ID: %d", staked[wallet][index].tokenId);
+        console.log("Stake Time: %d", staked[wallet][index].stakeTime);
+        console.log("lastClaimed: %d", staked[wallet][index].lastClaimed);
+        console.log("totalClaimed: %d", staked[wallet][index].totalClaimed);
+        console.log("-----------------");
+        console.log("CALC_RATE: %d", CALC_RATE);
+        console.log("1 days: %d", 1 days);
+        console.log("Total Owed: %d", owed);
+        console.log("-----------------");
+
         // owed = (lastClaimTimestamp - stake.value) * GENESIS_DAILY_RATE / 1 days; // stop earning additional coins if it's all claimed
         return owed;
     }

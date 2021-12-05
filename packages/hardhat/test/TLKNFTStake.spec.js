@@ -247,7 +247,7 @@ describe("TLKNFTStake", function () {
       // playersDailyRate = String(playersDailyRate);
       // console.log("Players Daily Rate = ", playersDailyRate);
       // Act
-      await TLKNFTStake.connect(wallet).setEarnRates(100,200);
+      await TLKNFTStake.connect(wallet).setEarnRates(100000,200000);
       // Assert
       genesisDailyRate = await TLKNFTStake.connect(wallet).GENESIS_DAILY_RATE();
       genesisDailyRate = Number(ethers.utils.formatUnits(genesisDailyRate,0));
@@ -255,30 +255,15 @@ describe("TLKNFTStake", function () {
       playersDailyRate = await TLKNFTStake.connect(wallet).PLAYERS_DAILY_RATE();
       playersDailyRate = Number(ethers.utils.formatUnits(playersDailyRate,0));
       // console.log("Players Daily Rate (Post) = ", playersDailyRate);
-      if (genesisDailyRate == 100 && playersDailyRate == 200)
+      if (genesisDailyRate == 100000 && playersDailyRate == 200000)
         failure = false;
 
       // Reset earn rates to the default values
-      await TLKNFTStake.connect(wallet).setEarnRates(500,100);
+      await TLKNFTStake.connect(wallet).setEarnRates(500000,100000);
         // eslint-disable-next-line no-unused-expressions
       expect(failure).to.be.false;
     });
   });
-
-  // PUBLIC
-  // function onERC721Received(
-  // function stakeTLKGenesis(uint256 id) external {
-  // function stakeTLKPlayer(uint256 id) external {
-  // function totalClaimable(address wallet) external view returns (uint256) {
-  // function claimAll() external returns (uint256) {
-  // function unStakeTLKGenesis(uint256 id) external {
-  // function unStakeTLKPlayer(uint256 id) external {
-  // function _amountOwed(address wallet, uint256 index) internal view returns (uint256) {
-
-  // INTERNAL
-  // function _claimNFT(address wallet, uint256 index, uint256 amount) internal {
-  // function _claimAll() internal returns (uint256) {
-  // function _stakedOwner(address wallet, uint256 nftType, uint256 id) internal view returns (bool, uint256) {
 
   describe("Minting & Staking NFTs", function () {
     it("Mint TLKGenesis NFT", async function () {
@@ -302,21 +287,39 @@ describe("TLKNFTStake", function () {
       expect(errorDetected).to.be.eq(false);
     });
 
+    it("Mint TLKPlayer NFT", async function () {
+      // Arrange
+      const wallet = owner;
+      const adminNFTs = [88];
+      let errorDetected = false;
+      // Act
+      //   console.log("Target Address = ", target);
+      let preNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
+      preNFTBalance = preNFTBalance.toNumber();
+      //   console.log("Pre Balance = ", preNFTBalance);
+      await TLKPlayers.connect(wallet).adminMintIds([adminNFTs]);
+      let postNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
+      postNFTBalance = postNFTBalance.toNumber();
+      //   console.log("Post Balance = ", postNFTBalance);
+      if (postNFTBalance != (preNFTBalance + 1)) {
+        errorDetected = true;
+      }
+      // Assert
+      expect(errorDetected).to.be.eq(false);
+    });
+
     it("TLKGenesis owner should be able to stake the NFT", async function () {
       // Arrange
       const wallet = signers[0];
       //   console.log("Wallet Address = ", wallet.address);
       let errorDetected = false;
       // Act
-
       // Approve the transfer
       let preNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
       preNFTBalance = preNFTBalance.toNumber();
       // console.log("Pre Balance = ", preNFTBalance);
-
       await TLKGenesis.connect(wallet).approve(TLKNFTStake.address, 1);
       await TLKNFTStake.connect(wallet).stakeTLKGenesis(1);
-
       let postNFTBalance = await TLKGenesis.connect(wallet).balanceOf(wallet.address);
       postNFTBalance = postNFTBalance.toNumber();
       // console.log("Post Balance = ", postNFTBalance);
@@ -326,5 +329,49 @@ describe("TLKNFTStake", function () {
       // Assert
       expect(errorDetected).to.be.eq(false);
     });
+
+    it("TLKPlayer owner should be able to stake the NFT", async function () {
+      // Arrange
+      const wallet = owner;
+      //   console.log("Wallet Address = ", wallet.address);
+      let errorDetected = false;
+      // Act
+      // Approve the transfer
+      let preNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
+      preNFTBalance = preNFTBalance.toNumber();
+      // console.log("Pre Balance = ", preNFTBalance);
+      await TLKPlayers.connect(wallet).approve(TLKNFTStake.address, 88);
+      await TLKNFTStake.connect(wallet).stakeTLKPlayer(88);
+      let postNFTBalance = await TLKPlayers.connect(wallet).balanceOf(wallet.address);
+      postNFTBalance = postNFTBalance.toNumber();
+      // console.log("Post Balance = ", postNFTBalance);
+      if (postNFTBalance != (preNFTBalance -1)) {
+        errorDetected = true;
+      }
+      // Assert
+      expect(errorDetected).to.be.eq(false);
+    });
+
+  // PUBLIC
+  // function totalClaimable(address wallet) external view returns (uint256) {
+  // function claimAll() external returns (uint256) {
+  // function unStakeTLKGenesis(uint256 id) external {
+  // function unStakeTLKPlayer(uint256 id) external {
+  // function _amountOwed(address wallet, uint256 index) internal view returns (uint256) {
+
+  // INTERNAL
+  // function _claimNFT(address wallet, uint256 index, uint256 amount) internal {
+  // function _claimAll() internal returns (uint256) {
+  // function _stakedOwner(address wallet, uint256 nftType, uint256 id) internal view returns (bool, uint256) {
+    it("Wallet with staked NFTs should be able to call totalClaimable", async function () {
+      // Arrange
+      const wallet = owner;
+      // Act
+      let claimableAmount = await TLKNFTStake.connect(wallet).totalClaimable(wallet.address);
+      console.log("Claimable Amount = ", claimableAmount);
+      // Assert
+      // expect(errorDetected).to.be.eq(false);
+    });
+
   });
 });
