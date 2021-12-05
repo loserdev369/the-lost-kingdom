@@ -33,12 +33,14 @@ const Title = styled.img`
 
 `
 const IntroText = styled.img`
+  margin: 0;
   @media screen and (max-width: 1440px) {
     width: 60vw;
   }
 `
 const LearnMore = styled.img`
   cursor: pointer;
+  margin: 0;
   margin-top: 3rem;
   @media screen and (max-width: 1440px) {
     width: 20vw;
@@ -58,6 +60,9 @@ function Home() {
           body {
             background: linear-gradient(180deg, rgba(34,63,43,1) 0%, rgba(73,161,132,1) 50%, rgba(34,63,43,1) 100%);
             position: relative;
+          }
+          img {
+            margin: 0 auto;
           }
         `}
       />
