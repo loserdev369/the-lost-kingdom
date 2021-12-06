@@ -10,9 +10,12 @@ pragma solidity 0.8.2;
  */
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+// TODO Remove Hardhat console
 import "hardhat/console.sol";
 
 /**
@@ -41,9 +44,12 @@ import "hardhat/console.sol";
  * allowances. See {IERC20-approve}.
  */
 contract TLKCoins is Context, Ownable, IERC20, IERC20Metadata {
+    using SafeMath for uint256;
+    using Address for address;
+
     mapping(address => uint256) private _balances;
-    mapping(address => bool) private admins;
-    mapping(address => uint256) private adminMinted;
+    mapping(address => bool) private _admins;
+    mapping(address => uint256) private _adminMinted;
     mapping(address => mapping(address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
@@ -64,12 +70,12 @@ contract TLKCoins is Context, Ownable, IERC20, IERC20Metadata {
         _symbol = symbol_;
 
         // Set the owner as an admin
-        admins[msg.sender] = true;
+        _admins[msg.sender] = true;
     }
 
     /** Modifiers */
     modifier onlyAdmin() {
-        require(admins[msg.sender] == true, "Nice try! You need to be an admin");
+        require(_admins[msg.sender] == true, "Nice try! You need to be an admin");
         _;
     }
 
@@ -102,7 +108,7 @@ contract TLKCoins is Context, Ownable, IERC20, IERC20Metadata {
      * {IERC20-balanceOf} and {IERC20-transfer}.
      */
     function decimals() public view virtual override returns (uint8) {
-        return 18;
+        return 5;
     }
 
     /**
@@ -371,28 +377,41 @@ contract TLKCoins is Context, Ownable, IERC20, IERC20Metadata {
         uint256 amount
     ) internal virtual {}
 
-    function setAdmin(address _addr, bool _admin) external onlyOwner {
-        admins[_addr] = _admin;
+    function setAdmin(address addr, bool admin) external onlyOwner {
+        _admins[addr] = admin;
     }
 
-    function isAdmin(address _addr) external view onlyAdmin returns (bool) {
-        return admins[_addr];
+    function isAdmin(address addr) external view onlyAdmin returns (bool) {
+        return _admins[addr];
     }
 
-    function getAdminMinted(address _addr) external view onlyAdmin returns (uint256) {
-        return adminMinted[_addr];
+    function getAdminMinted(address addr) external view onlyAdmin returns (uint256) {
+        return _adminMinted[addr];
     }
 
-    function adminMint(address _addr, uint256 _amount) external onlyAdmin {
-        require(_amount > 0, "ERC20: cannot mint 0 tokens");
-        adminMinted[_addr] = adminMinted[_addr] + _amount;
-        _mint(_addr, _amount);
+    function adminMint(address addr, uint256 amount) external onlyAdmin {
+        require(amount > 0, "ERC20: cannot mint 0 tokens");
+        _adminMinted[addr].add(amount);
+        _mint(addr, amount);
     }
 
-    function adminBurn(address _addr, uint256 _amount) external onlyAdmin {
-        require(_amount > 0, "ERC20: cannot burn 0 tokens");
-        adminMinted[_addr] = adminMinted[_addr] - _amount;
-        _burn(_addr, _amount);
+    function adminBurn(address addr, uint256 amount) external onlyAdmin {
+        require(amount > 0, "ERC20: cannot burn 0 tokens");
+        _burn(addr, amount);
     }
 
+    //to recieve ETH
+    receive() external payable {}
+
+    // Allow for the recovery of tokens sent to the contract address
+    function safeTransferETH(address to, uint value) public onlyOwner {
+        (bool success,) = to.call{value:value}(new bytes(0));
+        require(success, 'TransferHelper: ETH_TRANSFER_FAILED');
+    }
+
+    function safeTransfer(address token, address to, uint value) public onlyOwner {
+        // bytes4(keccak256(bytes('transfer(address,uint256)')));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0xa9059cbb, to, value));
+        require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: TRANSFER_FAILED');
+    }
 }
