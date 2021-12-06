@@ -12,12 +12,26 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 // TODO Remove Hardhat console
 import "hardhat/console.sol";
 
-contract TLKPlayers is Ownable, ERC721Enumerable {
+interface IERC2981 is IERC165 {
+  /// @notice Called with the sale price to determine how much royalty
+  //          is owed and to whom.
+  /// @param _tokenId - the NFT asset queried for royalty information
+  /// @param _salePrice - the sale price of the NFT asset specified by _tokenId
+  /// @return receiver - address of who should be sent the royalty payment
+  /// @return royaltyAmount - the royalty payment amount for _salePrice
+  function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address receiver, uint256 royaltyAmount);
+}
+
+contract TLKPlayers is Ownable, ERC721Enumerable, IERC2981 {
     using SafeMath for uint256;
     using Address for address;
+
+    // Expose this variable for PaintSwap (found on the PaintSwap ERC721)
+    string public baseURI;
 
     // NFT configuration
     uint256 public _maxTLKPlayers = 50000;
@@ -36,28 +50,29 @@ contract TLKPlayers is Ownable, ERC721Enumerable {
 
     // Wallet configuration
     address public _treasuryAddress;
+    uint public _royaltyAmount = 750;
 
     // Mappings
-    struct TLKSlaveHolder {
+    struct TLKPlayerHolder {
         uint256 nftsReserved;
         uint256 mintedNFTs;
         bool isAdmin;
     }
-    mapping(address => TLKSlaveHolder) public _accounts;
+    mapping(address => TLKPlayerHolder) public _accounts;
 
     // Contract events
     event DepositTreasury(uint256 fundsTransferred);
-    event MintSlave(address owner, uint256 id);
+    event MintPlayer(address owner, uint256 id);
 
     constructor(address[] memory admins, address treasury)
     ERC721("TLKPlayers", "TLKPlayers")
     {
         _treasuryAddress = treasury;
         _baseURIExtended = "ipfs://QmbHjsvFJT8uP64xRRSKoXuoq4VYXeRaao1VKzK3JFyEvE/";
-        _accounts[msg.sender] = TLKSlaveHolder( 0, 0, true );
-        _accounts[_treasuryAddress] = TLKSlaveHolder( 10000, 0, true );
+        _accounts[msg.sender] = TLKPlayerHolder( 0, 0, true );
+        _accounts[_treasuryAddress] = TLKPlayerHolder( 10000, 0, true );
         for(uint256 i = 0; i < admins.length; i++) {
-            _accounts[admins[i]] = TLKSlaveHolder( 11, 0, true );
+            _accounts[admins[i]] = TLKPlayerHolder( 11, 0, true );
         }
     }
 
@@ -106,12 +121,16 @@ contract TLKPlayers is Ownable, ERC721Enumerable {
         _maxTLKPlayers = maxTLKPlayers;
     }
 
-    function setSlavePrice(uint256 slavePrice) external onlyAdmin {
-        _priceTLKPlayers = slavePrice;
+    function setPlayerPrice(uint256 playerPrice) external onlyAdmin {
+        _priceTLKPlayers = playerPrice;
     }
 
     function setTreasury(address treasury) external onlyOwner {
         _treasuryAddress = treasury;
+    }
+
+    function setRoyalty(uint royalty) external onlyAdmin {
+        _royaltyAmount = royalty;
     }
     // End Setters
 
@@ -132,7 +151,7 @@ contract TLKPlayers is Ownable, ERC721Enumerable {
     }
 
     //
-    function getTLKSlaveHolder(address _account) public view returns (uint256, uint256, bool) {
+    function getTLKPlayerHolder(address _account) public view returns (uint256, uint256, bool) {
         return (_accounts[_account].nftsReserved, 
                 _accounts[_account].mintedNFTs,
                 _accounts[_account].isAdmin);
@@ -181,7 +200,7 @@ contract TLKPlayers is Ownable, ERC721Enumerable {
         _accounts[msg.sender].nftsReserved.sub(mintIds.length);
     }
 
-    function mintSlave(uint256 mintAmount) external payable noReentrant {
+    function mintPlayer(uint256 mintAmount) external payable noReentrant {
         // console.log("mintAmount: ", mintAmount);
         // console.log("msg.sender: ", msg.sender);
         // console.log("mintedNFTs: ", _accounts[msg.sender].mintedNFTs);
@@ -204,7 +223,7 @@ contract TLKPlayers is Ownable, ERC721Enumerable {
                     _safeMint(msg.sender, _mintIndex);
                     // console.log("Mint NFT ID# ", _mintIndex);
                     minted = true;
-                    emit MintSlave(msg.sender, _mintIndex);
+                    emit MintPlayer(msg.sender, _mintIndex);
                 }
                 _mintIndex++;
             }
@@ -230,5 +249,15 @@ contract TLKPlayers is Ownable, ERC721Enumerable {
         // bytes4(keccak256(bytes('transfer(address,uint256)')));
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0xa9059cbb, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))), 'TransferHelper: TRANSFER_FAILED');
+    }
+
+	function royaltyInfo(uint, uint _salePrice) external view override returns (address, uint) {
+		uint royalty = _royaltyAmount;
+		address receiver = _treasuryAddress;
+		return (receiver, (_salePrice * royalty) / 10000);
+	}
+
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721Enumerable, IERC165) returns (bool) {
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
 }
