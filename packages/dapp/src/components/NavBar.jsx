@@ -91,7 +91,7 @@ function NavBar() {
       connectBtnRef.current
     ]
     gsap.from(refs, { y: -200, stagger: 0.3, opacity: 0 })
-    gsap.from(socialRefs, { y: -200, stagger: 0.3, opacity: 0, delay: 1 })
+    gsap.from(socialRefs, { y: -200, stagger: 0.3, opacity: 0, delay: 0.3 })
   }, [])
 
   useEffect(() => {
