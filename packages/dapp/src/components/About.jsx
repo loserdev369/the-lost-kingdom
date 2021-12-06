@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import styled from '@emotion/styled'
 import aboutText from '../assets/pages/about/about-text.png'
 import titleText from '../assets/pages/about/about-kingdoms.png'
@@ -54,6 +54,7 @@ const AboutPosterWrap = styled.img`
 
 
 export default function About() {
+
   const wrapRef = useRef();
   const titleRef = useRef();
   const aboutTextRef = useRef();
@@ -73,8 +74,20 @@ export default function About() {
         ease: 'power1.inOut',
       }
     })
-    t1.from(refs, { x: 300, opacity: 0, stagger: 0.3 })
-    // t1.from(worldMapRef, { opacity: 0, x: -300 })
+
+
+    const t2 = gsap.timeline({
+      scrollTrigger: {
+        trigger: worldMapRef.current,
+        // markers: true,
+        toggleActions: 'play none none none',
+        start: 'top 50%',
+        ease: 'power1.inOut',
+      }
+    })
+    t1.from(refs, { x: 300, opacity: 0, stagger: 0.3, duration: 1 })
+    t2.from(worldMapRef.current, { x: -300, opacity: 0, duration: 1 })
+    console.log('something to refresh')
   }, [])
   return (
     <Wrap ref={wrapRef}>
