@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import styled from '@emotion/styled'
-import NavBar from "../components/NavBar.jsx"
+import NavBar from "./NavBar.jsx"
 import TLKTitle from '../assets/pages/hero/the-lost-kingdom.png'
 import TLKIntroText from '../assets/pages/hero/once-upon-a-time.png'
 import LearnMoreBtn from '../assets/pages/hero/learn-more-btn.png'
@@ -59,6 +59,9 @@ export default function Hero() {
   const learnMoreRef = useRef();
 
   useEffect(() => {
+    window.onbeforeunload = () => {
+      window.scrollTo(0, 0);
+    }
     const refs = [
       titleRef.current,
       introTextRef.current,
