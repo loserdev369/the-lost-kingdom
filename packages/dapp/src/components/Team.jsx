@@ -1,4 +1,6 @@
 import styled from '@emotion/styled'
+import { useRef, useLayoutEffect } from 'react'
+import { gsap } from 'gsap'
 
 import team from '../assets/pages/team/team-heading.png'
 
@@ -63,29 +65,77 @@ const Member = styled.div`
 const SectionWrap = styled.div``
 
 export default function Team() {
+  const t1 = useRef()
+
+  const titleRef = useRef();
+  const m1AvatarRef = useRef()
+  const m1NameRef = useRef()
+  const m1TitleRef = useRef()
+  const m2AvatarRef = useRef()
+  const m2NameRef = useRef()
+  const m2TitleRef = useRef()
+  const m3AvatarRef = useRef()
+  const m3NameRef = useRef()
+  const m3TitleRef = useRef()
+  const m4AvatarRef = useRef()
+  const m4NameRef = useRef()
+  const m4TitleRef = useRef()
+
+  useLayoutEffect(() => {
+
+    const refs = [
+      titleRef.current,
+      m1AvatarRef.current,
+      m1NameRef.current,
+      m1TitleRef.current,
+      m2AvatarRef.current,
+      m2NameRef.current,
+      m2TitleRef.current,
+      m3AvatarRef.current,
+      m3NameRef.current,
+      m3TitleRef.current,
+      m4AvatarRef.current,
+      m4NameRef.current,
+      m4TitleRef.current
+    ]
+
+    t1.current = gsap.timeline({
+      scrollTrigger: {
+        trigger: titleRef.current,
+        markers: true,
+        toggleActions: 'play none none none',
+        start: 'top center',
+        ease: 'power1.inOut',
+      }
+    })
+      .from(refs, { y: -90, opacity: 0, stagger: 0.1 })
+    // .from(roadMap1Refs, { x: 300, opacity: 0, stagger: 0.4 })
+  }, [])
+
+
   return (
     <SectionWrap>
-      <Heading src={team} />
+      <Heading ref={titleRef} src={team} />
       <MemberWrap>
         <Member>
-          <Avatar src={loserKingAvatar} />
-          <Name src={loserKing} />
-          <Title src={loserKingTitle} />
+          <Avatar ref={m1AvatarRef} src={loserKingAvatar} />
+          <Name ref={m1NameRef} src={loserKing} />
+          <Title ref={m1TitleRef} src={loserKingTitle} />
         </Member>
         <Member>
-          <Avatar src={loserDevAvatar} />
-          <Name src={loserDev} />
-          <Title src={loserDevTitle} />
+          <Avatar ref={m2AvatarRef} src={loserDevAvatar} />
+          <Name ref={m2NameRef} src={loserDev} />
+          <Title ref={m2TitleRef} src={loserDevTitle} />
         </Member>
         <Member>
-          <Avatar src={loserRootAvatar} />
-          <Name src={loserRoot} />
-          <Title src={loserRootTitle} />
+          <Avatar ref={m3AvatarRef} src={loserRootAvatar} />
+          <Name ref={m3NameRef} src={loserRoot} />
+          <Title ref={m3TitleRef} src={loserRootTitle} />
         </Member>
         <Member>
-          <Avatar src={waldoAvatar} />
-          <Name src={waldo} />
-          <Title src={waldoTitle} />
+          <Avatar ref={m4AvatarRef} src={waldoAvatar} />
+          <Name ref={m4NameRef} src={waldo} />
+          <Title ref={m4TitleRef} src={waldoTitle} />
         </Member>
       </MemberWrap>
     </SectionWrap>
