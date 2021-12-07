@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useRef, useLayoutEffect } from 'react'
 import styled from '@emotion/styled'
 import aboutText from '../assets/pages/about/about-text.png'
 import titleText from '../assets/pages/about/about-kingdoms.png'
@@ -63,7 +63,7 @@ export default function About() {
 
   // add scrollTrigger to active animations on scroll
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const refs = [titleRef.current, aboutTextRef.current, posterRef.current]
     const t1 = gsap.timeline({
       scrollTrigger: {
@@ -89,6 +89,7 @@ export default function About() {
     t2.from(worldMapRef.current, { x: -300, opacity: 0, duration: 1 })
     console.log('something to refresh')
   }, [])
+
   return (
     <Wrap ref={wrapRef}>
       <TitleWrap>

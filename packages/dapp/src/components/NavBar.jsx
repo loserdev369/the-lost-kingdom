@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useContext } from "react"
+import { useRef, useLayoutEffect, useEffect, useState, useContext } from "react"
 import styled from "@emotion/styled"
 import { css } from "@emotion/react"
 import { gsap } from 'gsap'
@@ -75,26 +75,6 @@ function NavBar() {
   const { message } = useContext(MainContext)
 
   useEffect(() => {
-    console.log({ message })
-    const refs = [
-      homeRef.current,
-      aboutRef.current,
-      roadmapRef.current,
-      teamRef.current,
-      faqRef.current,
-      loreRef.current
-    ]
-    const socialRefs = [
-      twitterRef.current,
-      discordRef.current,
-      audioWaveRef.current,
-      connectBtnRef.current
-    ]
-    gsap.from(refs, { y: -200, stagger: 0.3, opacity: 0 })
-    gsap.from(socialRefs, { y: -200, stagger: 0.3, opacity: 0, delay: 0.3 })
-  }, [])
-
-  useEffect(() => {
     // edit volume so that its not to loud while playing
     const themeMusic = new Howl({ src: spirtOfGresynu, loop: true })
     setCurrentSound(themeMusic)
@@ -118,6 +98,26 @@ function NavBar() {
       // console.log({ currentSound, soundID }, currentSound.seek(soundID))
     }
   }
+
+  useLayoutEffect(() => {
+    console.log({ message })
+    const refs = [
+      homeRef.current,
+      aboutRef.current,
+      roadmapRef.current,
+      teamRef.current,
+      faqRef.current,
+      loreRef.current
+    ]
+    const socialRefs = [
+      twitterRef.current,
+      discordRef.current,
+      audioWaveRef.current,
+      connectBtnRef.current
+    ]
+    gsap.from(refs, { y: -200, stagger: 0.3, opacity: 0 })
+    gsap.from(socialRefs, { y: -200, stagger: 0.3, opacity: 0, delay: 0.3 })
+  }, [])
 
   // sectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
 

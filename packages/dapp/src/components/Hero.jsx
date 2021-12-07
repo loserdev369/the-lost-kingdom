@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useLayoutEffect } from 'react'
 import styled from '@emotion/styled'
 import NavBar from "./NavBar.jsx"
 import TLKTitle from '../assets/pages/hero/the-lost-kingdom.png'
@@ -58,7 +58,7 @@ export default function Hero() {
   const introTextRef = useRef();
   const learnMoreRef = useRef();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     window.onbeforeunload = () => {
       window.scrollTo(0, 0);
     }
