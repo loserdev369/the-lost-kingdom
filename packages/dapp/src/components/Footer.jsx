@@ -1,3 +1,5 @@
+import { useRef, useLayoutEffect } from 'react'
+import { gsap } from 'gsap'
 import styled from '@emotion/styled'
 import { css } from '@emotion/react'
 import leftDarkElf from '../assets/pages/footer/dark-elf-left.png'
@@ -6,6 +8,14 @@ import followUs from '../assets/pages/footer/follow-us-title.png'
 import subText from '../assets/pages/footer/follow-us-sub-text.png'
 import discord from '../assets/pages/footer/footer-discord.png'
 import twitter from '../assets/pages/footer/footer-twitter.png'
+
+const TestWrap = styled.div`
+  color: white;
+  font-size: 100px;
+  // & * {
+  //   font-size: 100px;
+  // }
+`
 
 
 const FooterWrapper = styled.div`
@@ -64,20 +74,56 @@ const SocialIcon = styled.img`
 
 
 export default function Footer() {
+  const wrapperRef = useRef()
+  const titleRef = useRef()
+  const subTextRef = useRef()
+  const discordRef = useRef()
+  const twitterRef = useRef()
+  const darkElfLeftRef = useRef()
+  const darkElfRightRef = useRef()
+  const t1 = useRef()
+
+  useLayoutEffect(() => {
+    const refs = [
+      darkElfLeftRef.current,
+      titleRef.current,
+      subTextRef.current,
+      discordRef.current,
+      twitterRef.current,
+      darkElfRightRef.current
+    ]
+
+    t1.current = gsap.timeline({
+      scrollTrigger: {
+        trigger: wrapperRef.current,
+        toggleActions: 'play none none none',
+        start: 'top center',
+        ease: 'power1.inOut',
+        // markers: true
+      }
+    })
+      .from(refs, { x: -90, opacity: 0, stagger: 0.2, duration: 1 })
+  }, [])
+
+
   return (
-    <FooterWrapper>
-      <DarkElf left src={leftDarkElf} />
+    <FooterWrapper ref={wrapperRef}>
+      <DarkElf ref={darkElfLeftRef} left src={leftDarkElf} />
       <MiddleSection>
         <TextWrap>
-          <Title src={followUs} />
-          <SubText src={subText} />
+          <Title ref={titleRef} src={followUs} />
+          <SubText ref={subTextRef} src={subText} />
         </TextWrap>
         <SocialWrap>
-          <SocialIcon src={discord} />
-          <SocialIcon src={twitter} />
+          <SocialIcon ref={discordRef} src={discord} />
+          <SocialIcon ref={twitterRef} src={twitter} />
         </SocialWrap>
       </MiddleSection>
-      <DarkElf right src={rightDarkElf} />
+      <DarkElf ref={darkElfRightRef} right src={rightDarkElf} />
+      <TestWrap>
+        <h1>Heading Test</h1>
+        <p>Body Test</p>
+      </TestWrap>
     </ FooterWrapper>
   )
 }

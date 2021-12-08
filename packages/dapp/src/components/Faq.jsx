@@ -1,4 +1,7 @@
+import { useRef, useLayoutEffect } from 'react'
 import styled from '@emotion/styled'
+import { gsap } from 'gsap'
+
 import faqHeading from '../assets/pages/faqs/FAQs.png'
 import faq1title from '../assets/pages/faqs/faq1-title.png'
 import faq1text from '../assets/pages/faqs/faq-1-text.png'
@@ -49,9 +52,25 @@ const Text = styled.img`
 `
 
 export default function Faqs() {
+  const titleRef = useRef()
+  const t1 = useRef()
+
+  useLayoutEffect(() => {
+    t1.current = gsap.timeline({
+      scrollTrigger: {
+        trigger: titleRef.current,
+        // markers: true,
+        toggleActions: 'play none none none',
+        start: 'top center',
+        ease: 'power1.inOut',
+      }
+    }).from(titleRef.current, { y: -90, opacity: 0 })
+
+  }, [])
+
   return (
     <FaqWrapper>
-      <Heading src={faqHeading} />
+      <Heading ref={titleRef} src={faqHeading} />
       {/* FAQ 1 */}
       <Faq>
         <Title src={faq1title} />

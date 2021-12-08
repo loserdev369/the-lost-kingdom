@@ -102,14 +102,13 @@ export default function Team() {
     t1.current = gsap.timeline({
       scrollTrigger: {
         trigger: titleRef.current,
-        markers: true,
+        // markers: true,
         toggleActions: 'play none none none',
         start: 'top center',
         ease: 'power1.inOut',
       }
     })
       .from(refs, { y: -90, opacity: 0, stagger: 0.1 })
-    // .from(roadMap1Refs, { x: 300, opacity: 0, stagger: 0.4 })
   }, [])
 
 
