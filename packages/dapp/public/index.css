@@ -1,0 +1,19 @@
+@font-face {
+  font-weight: 300;
+  font-family: 'Breathe Fire';
+  src: local('Breathe Fire'), url('../src/assets//fonts/breathe-fire.otf') format(otf);
+}
+
+@font-face {
+  font-weight: 300;
+  font-family: 'Timeless';
+  src: local('Timeless'), url('../src/assets//fonts/timeless.ttf') format(ttf);
+}
+
+@font-face {
+  font-weight: bold;
+  font-family: 'Timeless';
+  src: local('Timeless'),  url('../src/assets//fonts/timeless-bold.ttf') format(ttf);
+}
+
+
