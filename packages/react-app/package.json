@@ -1,0 +1,24 @@
+{
+  "name": "@scaffold-eth/react-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+  },
+  "devDependencies": {
+    "ethers": "^5.5.2",
+    "snowpack": "^3.3.7"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^1.7.2",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
+    "@usedapp/core": "^0.6.3",
+    "framer-motion": "^4",
+    "gsap": "npm:@gsap/shockingly",
+    "howler": "^2.2.3"
+  }
+}
